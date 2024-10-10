@@ -21,10 +21,13 @@ client.defineJob({
     const { data: accountsData, error: accountsError } = await supabase
       .from("bank_accounts")
       .select(
-        "id, team_id, account_id, type, bank_connection:bank_connection_id(id, provider, access_token)",
+        "id, team_id, account_id, type, bank_connection:bank_connection_id(id, provider, access_token, status)",
       )
       .eq("team_id", teamId)
       .eq("enabled", true)
+      .neq("bank_connection.status", "disconnected")
+      // Remove this when GoCardless is fixed
+      .neq("bank_connection.provider", "gocardless")
       .eq("manual", false);
 
     if (accountsError) {

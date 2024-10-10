@@ -11,17 +11,30 @@ import { motion } from "framer-motion";
 import { useAction } from "next-safe-action/hooks";
 import { useState } from "react";
 
-export function TeamDropdown({ selectedTeamId: initialId, teams }) {
+type Team = {
+  team: {
+    id: string;
+    name: string;
+    logo_url: string;
+  };
+};
+
+type Props = {
+  selectedTeamId: string;
+  teams: Team[];
+};
+
+export function TeamDropdown({ selectedTeamId: initialId, teams }: Props) {
   const [selectedId, setSelectedId] = useState(initialId);
   const [isActive, setActive] = useState(false);
   const [isOpen, onOpenChange] = useState(false);
   const changeTeam = useAction(changeTeamAction);
 
-  const sortedTeams = [...teams, { team: { id: "add" } }].sort((a, b) => {
+  const sortedTeams = teams.sort((a, b) => {
     if (a.team.id === selectedId) return -1;
     if (b.team.id === selectedId) return 1;
 
-    return a.team.id - b.team.id;
+    return a.team.id.localeCompare(b.team.id);
   });
 
   const ref = useClickAway(() => {
@@ -33,7 +46,7 @@ export function TeamDropdown({ selectedTeamId: initialId, teams }) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <motion.div ref={ref} layout className="w-[32px] h-[32px] relative">
-        {sortedTeams.map(({ team }, index) => (
+        {[...sortedTeams, { team: { id: "add" } }].map(({ team }, index) => (
           <motion.div
             key={team.id}
             className="w-[32px] h-[32px] left-0 overflow-hidden absolute"

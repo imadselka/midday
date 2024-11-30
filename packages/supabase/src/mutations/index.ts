@@ -374,11 +374,13 @@ export async function deleteAttachment(supabase: Client, id: string) {
 
 type CreateTeamParams = {
   name: string;
+  currency?: string;
 };
 
 export async function createTeam(supabase: Client, params: CreateTeamParams) {
-  const { data } = await supabase.rpc("create_team", {
+  const { data } = await supabase.rpc("create_team_v2", {
     name: params.name,
+    currency: params.currency,
   });
 
   return data;
@@ -513,20 +515,13 @@ type CreateProjectParams = {
   billable?: boolean;
   rate?: number;
   currency?: string;
+  customer_id?: string;
+  team_id: string;
 };
 
 export async function createProject(
   supabase: Client,
   params: CreateProjectParams,
 ) {
-  const { data: userData } = await getCurrentUserTeamQuery(supabase);
-
-  return supabase
-    .from("tracker_projects")
-    .insert({
-      ...params,
-      team_id: userData?.team_id,
-    })
-    .select()
-    .single();
+  return supabase.from("tracker_projects").insert(params).select().single();
 }

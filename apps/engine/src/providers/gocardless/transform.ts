@@ -126,7 +126,7 @@ export const transformTransaction = (
       if (currency) {
         currencyExchange = {
           rate,
-          currency,
+          currency: currency.toUpperCase(),
         };
       }
     }
@@ -147,7 +147,7 @@ export const transformTransaction = (
     currency: transaction.transactionAmount.currency,
     category: mapTransactionCategory(transaction),
     currency_rate: currencyExchange?.rate || null,
-    currency_source: currencyExchange?.currency || null,
+    currency_source: currencyExchange?.currency?.toUpperCase() || null,
     balance,
     description,
     status: "posted",
@@ -163,6 +163,7 @@ const transformAccountName = (account: TransformAccountName) => {
     return account.product;
   }
 
+  // TODO: Fix no name
   return "No name";
 };
 
@@ -179,7 +180,7 @@ export const transformAccount = ({
       name: account.name,
       product: account.product,
     }),
-    currency: account.currency,
+    currency: account.currency.toUpperCase(),
     enrollment_id: null,
     balance: transformAccountBalance(balance),
     institution: transformInstitution(institution),
@@ -189,7 +190,7 @@ export const transformAccount = ({
 export const transformAccountBalance = (
   account?: TransformAccountBalance,
 ): BaseAccountBalance => ({
-  currency: account?.currency || "EUR",
+  currency: account?.currency.toUpperCase() || "EUR",
   amount: +(account?.amount ?? 0),
 });
 

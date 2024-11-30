@@ -1,8 +1,10 @@
+import { DynamicImage } from "@/components/dynamic-image";
 import { SubscribeInput } from "@/components/subscribe-input";
 import type { Metadata } from "next";
 import Image from "next/image";
 import engineSDK from "public/engine-sdk.png";
-import engine from "public/engine-ui.png";
+import engineLight from "public/engine-ui-light.png";
+import engineDark from "public/engine-ui.png";
 
 export const metadata: Metadata = {
   title: "Engine",
@@ -12,8 +14,8 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <div className="w-full bg-[#0C0C0C] flex flex-col items-center justify-center mt-24">
-      <h1 className="text-[100px] md:text-[170px] font-medium text-center text-white relative z-20 leading-none">
+    <div className="w-full dark:bg-[#0C0C0C] flex flex-col items-center justify-center mt-24">
+      <h1 className="text-[100px] md:text-[170px] font-medium text-center text-primary relative z-20 leading-none">
         One API
       </h1>
 
@@ -40,13 +42,14 @@ export default function Page() {
           just one click. We add even more providers in the future.
         </p>
 
-        <Image
-          src={engine}
+        <DynamicImage
+          lightSrc={engineLight}
+          darkSrc={engineDark}
           alt="Engine UI"
           width={1026}
           height={552}
           className="mt-16"
-          quality={100}
+          quality={90}
         />
       </div>
 

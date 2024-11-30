@@ -1,8 +1,11 @@
 import { Assistant } from "@/components/assistant";
+import { CtaButton } from "@/components/cta-button";
+import { DynamicImage } from "@/components/dynamic-image";
 import type { Metadata } from "next";
-import Image from "next/image";
-import Files from "public/product-files.png";
-import Vault from "public/product-vault.jpg";
+import FilesLight from "public/product-files-light.png";
+import FilesDark from "public/product-files.png";
+import VaultLight from "public/product-vault-light.jpg";
+import VaultDark from "public/product-vault.jpg";
 
 export const metadata: Metadata = {
   title: "Vault",
@@ -25,12 +28,14 @@ export default function Page() {
         <div className="flex items-center flex-col text-center relative">
           <p className="text-lg mt-4 max-w-[600px]">
             Don’t waste time searching through old emails and random folders.
-            Keep all your contracts, agreements and more safe in one place.
+            Keep all your contracts, agreements and more safe in one place
           </p>
+
+          <CtaButton>Centralize Your Files now</CtaButton>
         </div>
       </div>
 
-      <Image src={Vault} quality={100} alt="Vault" />
+      <DynamicImage darkSrc={VaultDark} lightSrc={VaultLight} alt="Vault" />
 
       <div className="flex items-center flex-col text-center relative mt-28">
         <div className="max-w-[600px]">
@@ -38,22 +43,23 @@ export default function Page() {
             All your files in one place
           </h4>
           <p className="text-[#878787] text-sm">
-            Gather all your business files you have laying around and have them
-            in one place. Upload quickly and be able to share them with whomever
-            you want.
+            Store all your important files securely in Midday, including
+            contracts and agreements, keeping everything in one place for easy
+            access. Simplify your document management and stay organized with a
+            central repository for all your business needs.
           </p>
         </div>
 
-        <Image
-          src={Files}
-          quality={100}
+        <DynamicImage
+          darkSrc={FilesDark}
+          lightSrc={FilesLight}
           alt="Files"
           className="mt-10 max-w-[834px] w-full"
         />
 
         <div className="mt-32 max-w-[550px]">
           <h4 className="font-medium text-xl md:text-2xl mb-4">
-            Use assistant to search
+            Find what you need faster
           </h4>
           <p className="text-[#878787] text-sm mb-10">
             Use the assistant to search for your files or even within your

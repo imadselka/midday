@@ -1,13 +1,13 @@
 import { createAttachmentsAction } from "@/actions/create-attachments-action";
+import { createTransactionTagAction } from "@/actions/create-transaction-tag-action";
+import { deleteTransactionTagAction } from "@/actions/delete-transaction-tag-action";
 import type { UpdateTransactionValues } from "@/actions/schema";
 import { updateSimilarTransactionsCategoryAction } from "@/actions/update-similar-transactions-action";
 import { updateSimilarTransactionsRecurringAction } from "@/actions/update-similar-transactions-recurring";
+import { useUserContext } from "@/store/user/hook";
 import { createClient } from "@midday/supabase/client";
 import { getTransactionQuery } from "@midday/supabase/queries";
-import {
-  getCurrentUserTeamQuery,
-  getSimilarTransactions,
-} from "@midday/supabase/queries";
+import { getSimilarTransactions } from "@midday/supabase/queries";
 import {
   Accordion,
   AccordionContent,
@@ -38,6 +38,7 @@ import { Attachments } from "./attachments";
 import { FormatAmount } from "./format-amount";
 import { Note } from "./note";
 import { SelectCategory } from "./select-category";
+import { SelectTags } from "./select-tags";
 import { TransactionBankAccount } from "./transaction-bank-account";
 
 type Props = {
@@ -66,6 +67,10 @@ export function TransactionDetails({
     updateSimilarTransactionsRecurringAction,
   );
   const createAttachments = useAction(createAttachmentsAction);
+  const createTransactionTag = useAction(createTransactionTagAction);
+  const deleteTransactionTag = useAction(deleteTransactionTagAction);
+
+  const { team_id: teamId } = useUserContext((state) => state.data);
 
   useHotkeys("esc", () => setTransactionId(null));
 
@@ -129,14 +134,13 @@ export function TransactionDetails({
       { category },
     );
 
-    const user = await getCurrentUserTeamQuery(supabase);
     const transactions = await getSimilarTransactions(supabase, {
       name: data?.name,
-      teamId: user?.data?.team_id,
+      teamId: teamId,
       categorySlug: category.slug,
     });
 
-    if (transactions?.data && transactions.data.length > 1) {
+    if (transactions?.data && transactions.data.length > 0) {
       toast({
         duration: 6000,
         variant: "ai",
@@ -168,10 +172,9 @@ export function TransactionDetails({
       { recurring: value, frequency: value ? "monthly" : null },
     );
 
-    const user = await getCurrentUserTeamQuery(supabase);
     const transactions = await getSimilarTransactions(supabase, {
       name: data?.name,
-      teamId: user?.data?.team_id,
+      teamId: teamId,
     });
 
     if (transactions?.data && transactions.data.length > 1) {
@@ -309,6 +312,32 @@ export function TransactionDetails({
             }}
           />
         </div>
+      </div>
+
+      <div className="mt-6">
+        <Label htmlFor="tags" className="mb-2 block">
+          Tags
+        </Label>
+
+        <SelectTags
+          tags={data?.tags?.map((tag) => ({
+            label: tag.tag.name,
+            value: tag.tag.name,
+            id: tag.tag.id,
+          }))}
+          onSelect={(tag) => {
+            createTransactionTag.execute({
+              tagId: tag.id,
+              transactionId: data?.id,
+            });
+          }}
+          onRemove={(tag) => {
+            deleteTransactionTag.execute({
+              tagId: tag.id,
+              transactionId: data?.id,
+            });
+          }}
+        />
       </div>
 
       <Accordion type="multiple" defaultValue={defaultValue}>

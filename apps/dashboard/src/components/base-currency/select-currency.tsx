@@ -2,7 +2,7 @@
 
 import { updateCurrencyAction } from "@/actions/transactions/update-currency-action";
 import { SelectCurrency as SelectCurrencyBase } from "@/components/select-currency";
-import { uniqueCurrencies } from "@midday/location/src/currencies";
+import { uniqueCurrencies } from "@midday/location/currencies";
 import { Button } from "@midday/ui/button";
 import { useToast } from "@midday/ui/use-toast";
 import { useEventDetails } from "@trigger.dev/react";
@@ -44,7 +44,13 @@ export function SelectCurrency({ defaultValue }: { defaultValue: string }) {
           "This will update the base currency for all transactions and account balances.",
         duration: 7000,
         footer: (
-          <Button onClick={() => updateCurrency.execute({ baseCurrency })}>
+          <Button
+            onClick={() =>
+              updateCurrency.execute({
+                baseCurrency: baseCurrency.toUpperCase(),
+              })
+            }
+          >
             Update
           </Button>
         ),
@@ -53,11 +59,6 @@ export function SelectCurrency({ defaultValue }: { defaultValue: string }) {
       return;
     }
   };
-
-  useEffect(() => {
-    if (eventId) {
-    }
-  }, [eventId]);
 
   useEffect(() => {
     if (status === "SUCCESS") {
@@ -96,11 +97,12 @@ export function SelectCurrency({ defaultValue }: { defaultValue: string }) {
   }, [error]);
 
   return (
-    <SelectCurrencyBase
-      onChange={handleChange}
-      currencies={uniqueCurrencies}
-      value={defaultValue}
-      className="w-[200px]"
-    />
+    <div className="w-[200px]">
+      <SelectCurrencyBase
+        onChange={handleChange}
+        currencies={uniqueCurrencies}
+        value={defaultValue}
+      />
+    </div>
   );
 }

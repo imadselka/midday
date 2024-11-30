@@ -4,7 +4,8 @@ import { BotCard } from "@/components/chat/messages";
 import { FormatAmount } from "@/components/format-amount";
 import { TransactionStatus } from "@/components/transaction-status";
 import { useI18n } from "@/locales/client";
-import { formatTransactionDate } from "@/utils/format";
+import { useUserContext } from "@/store/user/hook";
+import { formatDate } from "@/utils/format";
 import { cn } from "@midday/ui/cn";
 import {
   Table,
@@ -26,6 +27,7 @@ type Props = {
 
 export function TransactionsUI({ meta, data, q, filter, sort }: Props) {
   const t = useI18n();
+  const { date_format: dateFormat } = useUserContext((state) => state.data);
 
   if (!meta.count) {
     return (
@@ -82,7 +84,7 @@ export function TransactionsUI({ meta, data, q, filter, sort }: Props) {
                     <span className="line-clamp-1">{transaction.name}</span>
                   </TableCell>
                   <TableCell className="font-normal">
-                    {formatTransactionDate(transaction.date)}
+                    {formatDate(transaction.date, dateFormat)}
                   </TableCell>
                   <TableCell
                     className={cn(

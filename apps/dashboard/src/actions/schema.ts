@@ -9,7 +9,38 @@ export const updateUserSchema = z.object({
   week_starts_on_monday: z.boolean().optional(),
   timezone: z.string().optional(),
   time_format: z.number().optional(),
+  date_format: z.enum(["dd/MM/yyyy", "MM/dd/yyyy", "yyyy-MM-dd"]).optional(),
   revalidatePath: z.string().optional(),
+});
+
+export const createTagSchema = z.object({ name: z.string() });
+export const createTransactionTagSchema = z.object({
+  tagId: z.string(),
+  transactionId: z.string(),
+});
+
+export const deleteTagSchema = z.object({
+  id: z.string(),
+});
+
+export const updateTagSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+});
+
+export const deleteTransactionTagSchema = z.object({
+  tagId: z.string(),
+  transactionId: z.string(),
+});
+
+export const deleteProjectTagSchema = z.object({
+  tagId: z.string(),
+  projectId: z.string(),
+});
+
+export const createProjectTagSchema = z.object({
+  tagId: z.string(),
+  projectId: z.string(),
 });
 
 export type UpdateUserFormValues = z.infer<typeof updateUserSchema>;
@@ -171,6 +202,7 @@ export const updateTransactionSchema = z.object({
   id: z.string().uuid(),
   note: z.string().optional().nullable(),
   category_slug: z.string().optional(),
+  tag_id: z.string().uuid().optional(),
   assigned_id: z.string().uuid().optional(),
   recurring: z.boolean().optional().nullable(),
   frequency: z.enum(["weekly", "monthly", "annually"]).optional().nullable(),
@@ -189,7 +221,7 @@ export const deleteCategoriesSchema = z.object({
 });
 
 export const bulkUpdateTransactionsSchema = z.object({
-  type: z.enum(["category", "note", "assigned", "status", "recurring"]),
+  type: z.enum(["category", "note", "assigned", "status", "recurring", "tags"]),
   data: z.array(updateTransactionSchema),
 });
 
@@ -318,6 +350,16 @@ export const createProjectSchema = z.object({
   rate: z.number().min(1).optional(),
   currency: z.string().optional(),
   status: z.enum(["in_progress", "completed"]).optional(),
+  customer_id: z.string().uuid().nullable().optional(),
+  tags: z
+    .array(
+      z.object({
+        id: z.string().uuid(),
+        value: z.string(),
+      }),
+    )
+    .optional()
+    .nullable(),
 });
 
 export const updateProjectSchema = z.object({
@@ -329,6 +371,16 @@ export const updateProjectSchema = z.object({
   rate: z.number().min(1).optional(),
   currency: z.string().optional(),
   status: z.enum(["in_progress", "completed"]).optional(),
+  customer_id: z.string().uuid().nullable().optional(),
+  tags: z
+    .array(
+      z.object({
+        id: z.string().uuid(),
+        value: z.string(),
+      }),
+    )
+    .optional()
+    .nullable(),
 });
 
 export const deleteProjectSchema = z.object({
@@ -429,8 +481,6 @@ export const assistantSettingsSchema = z.object({
   enabled: z.boolean().optional(),
 });
 
-export const requestAccessSchema = z.void();
-
 export const parseDateSchema = z
   .date()
   .transform((value) => new Date(value))
@@ -457,10 +507,15 @@ export const filterTransactionsSchema = z.object({
     .array(z.string())
     .optional()
     .describe("The categories to filter by"),
+  tags: z.array(z.string()).optional().describe("The tags to filter by"),
   recurring: z
     .array(z.enum(["all", "weekly", "monthly", "annually"]))
     .optional()
     .describe("The recurring to filter by"),
+  amount_range: z
+    .array(z.number())
+    .optional()
+    .describe("The amount range to filter by"),
 });
 
 export const filterVaultSchema = z.object({
@@ -493,6 +548,26 @@ export const filterTrackerSchema = z.object({
     .describe("The status to filter by"),
 });
 
+export const filterInvoiceSchema = z.object({
+  name: z.string().optional().describe("The name to search for"),
+  statuses: z
+    .array(z.enum(["draft", "overdue", "paid", "unpaid", "canceled"]))
+    .optional()
+    .describe("The statuses to filter by"),
+  start: parseDateSchema
+    .optional()
+    .describe("The start date when to retrieve from. Return ISO-8601 format."),
+  end: parseDateSchema
+    .optional()
+    .describe(
+      "The end date when to retrieve data from. If not provided, defaults to the current date. Return ISO-8601 format.",
+    ),
+  customers: z
+    .array(z.string())
+    .optional()
+    .describe("The customers to filter by"),
+});
+
 export const createTransactionSchema = z.object({
   name: z.string(),
   amount: z.number(),
@@ -515,3 +590,18 @@ export const createTransactionSchema = z.object({
 });
 
 export type CreateTransactionSchema = z.infer<typeof createTransactionSchema>;
+
+export const createCustomerSchema = z.object({
+  id: z.string().uuid().optional(),
+  name: z.string(),
+  email: z.string().email(),
+  country: z.string().nullable().optional(),
+  address_line_1: z.string().nullable().optional(),
+  address_line_2: z.string().nullable().optional(),
+  city: z.string().nullable().optional(),
+  state: z.string().nullable().optional(),
+  zip: z.string().nullable().optional(),
+  note: z.string().nullable().optional(),
+  website: z.string().nullable().optional(),
+  phone: z.string().nullable().optional(),
+});

@@ -1,8 +1,12 @@
+import { CtaButton } from "@/components/cta-button";
+import { DynamicImage } from "@/components/dynamic-image";
 import type { Metadata } from "next";
-import Image from "next/image";
-import Projects from "public/product-projects.png";
-import Slot from "public/product-slot.png";
-import Tracker from "public/product-tracker.jpg";
+import ProjectsLight from "public/product-projects-light.png";
+import ProjectsDark from "public/product-projects.png";
+import SlotLight from "public/product-slot-light.png";
+import SlotDark from "public/product-slot.png";
+import TrackerLight from "public/product-tracker-light.jpg";
+import TrackerDark from "public/product-tracker.jpg";
 
 export const metadata: Metadata = {
   title: "Time Tracker",
@@ -24,12 +28,20 @@ export default function Page() {
 
         <div className="flex items-center flex-col text-center relative">
           <p className="text-lg mt-4 max-w-[600px]">
-            Track your projects time and gain insightful project overviews.
+            Track your hours with ease and gain a clear monthly breakdown of
+            billable amounts. Link tracked time to customers and generate
+            invoices.
           </p>
+
+          <CtaButton>Start tracking time now</CtaButton>
         </div>
       </div>
 
-      <Image src={Tracker} quality={100} alt="Tracker" />
+      <DynamicImage
+        darkSrc={TrackerDark}
+        lightSrc={TrackerLight}
+        alt="Tracker"
+      />
 
       <div className="flex items-center flex-col text-center relative mt-28">
         <div className="max-w-[600px]">
@@ -37,35 +49,34 @@ export default function Page() {
             Have an overview of whats going on
           </h4>
           <p className="text-[#878787] text-sm">
-            Instead of using old docs or sheets, use the tracker when you are
-            tracking your business time on a project. Share the results with
-            your client or just keep an overview for your own sake.
+            Get a clear monthly overview of your tracked hours, set rates and
+            view the total billable amount with a detailed monthly breakdown.
+            Stay on top of your projects and manage your time effectively.
           </p>
         </div>
 
-        <Image
-          src={Projects}
-          quality={100}
-          alt="Projects"
-          className="mt-10 max-w-[834px] w-full"
+        <DynamicImage
+          darkSrc={ProjectsDark}
+          lightSrc={ProjectsLight}
+          alt="Slot"
+          className="mt-10 max-w-[450px] w-full"
         />
-
         <div className="mt-32 max-w-[600px]">
           <h4 className="font-medium text-xl md:text-2xl mb-4">
             Track all your projects
           </h4>
           <p className="text-[#878787] text-sm mb-10">
-            Track multiple projects simultaneously, invite your whole team, and
-            see what people are working on. Easily connect each project to your
-            upcoming invoice.
+            Easily link tracked time to a customer and generate invoices based
+            on recorded hours. Export your data as a CSV for seamless reporting
+            and analysis.
           </p>
         </div>
 
-        <Image
-          src={Slot}
-          quality={100}
+        <DynamicImage
+          darkSrc={SlotDark}
+          lightSrc={SlotLight}
           alt="Slot"
-          className="mt-10 max-w-[400px] w-full"
+          className="mt-10 max-w-[550px] w-full"
         />
       </div>
     </div>

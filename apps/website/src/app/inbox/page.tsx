@@ -1,9 +1,13 @@
 import { CopyInput } from "@/components/copy-input";
+import { CtaButton } from "@/components/cta-button";
+import { DynamicImage } from "@/components/dynamic-image";
 import type { Metadata } from "next";
-import Image from "next/image";
-import Inbox from "public/product-inbox.jpg";
-import Match from "public/product-match.png";
-import Receipt from "public/product-receipt.png";
+import BulkLight from "public/product-bulk-light.png";
+import BulkDark from "public/product-bulk.png";
+import InboxLight from "public/product-inbox-light.jpg";
+import InboxDark from "public/product-inbox.jpg";
+import MatchLight from "public/product-match-light.png";
+import MatchDark from "public/product-match.png";
 
 export const metadata: Metadata = {
   title: "Inbox",
@@ -25,13 +29,16 @@ export default function Page() {
 
         <div className="flex items-center flex-col text-center relative">
           <p className="text-lg mt-4 max-w-[600px]">
-            Automatically match incoming invoices or receipts to the correct
-            transaction.
+            Use your personalized email for invoices and receipts, with
+            transaction suggestions from Midday. Easily search, reconcile and
+            export documents to keep your business organized.
           </p>
+
+          <CtaButton>Automate your reconciliation process</CtaButton>
         </div>
       </div>
 
-      <Image src={Inbox} quality={100} alt="Inbox" />
+      <DynamicImage darkSrc={InboxDark} lightSrc={InboxLight} alt="Inbox" />
 
       <div className="flex items-center flex-col text-center relative mt-28">
         <div>
@@ -41,8 +48,8 @@ export default function Page() {
           <p className="text-[#878787] text-sm">
             1. Use your personalized email address for your invoices and
             receipts.
-            <br /> 2. When the invoice arrives in the inbox, our AI solution
-            automatically matches it with the correct transaction. <br />
+            <br /> 2. The invoice arrives in the inbox, Midday gives you a
+            transaction suggestion to match it with. <br />
             3. Your transactions now have the correct attachments, making it
             easy for you to export them.
           </p>
@@ -53,9 +60,9 @@ export default function Page() {
           className="max-w-[240px] mt-8"
         />
 
-        <Image
-          src={Match}
-          quality={100}
+        <DynamicImage
+          darkSrc={MatchDark}
+          lightSrc={MatchLight}
           alt="Matching"
           className="mt-10 max-w-[834px] w-full"
         />
@@ -65,18 +72,18 @@ export default function Page() {
             Keep track and find that old receipt
           </h4>
           <p className="text-[#878787] text-sm mb-10">
-            Have a clear picture of which receipts or invoices are missing a
-            transaction and which ones are completed. Use the assistant to find
-            the right receipts or invoices by searching keywords or amounts
-            directly from the PDF/Photo itself.
+            Quickly search for specific content within your receipts and
+            invoices. Bulk upload by dragging and dropping, with automatic
+            storage in your vault. Keep everything organized and accessible to
+            simplify receipt reconciliation.
           </p>
         </div>
 
-        <Image
-          src={Receipt}
-          quality={100}
+        <DynamicImage
+          darkSrc={BulkDark}
+          lightSrc={BulkLight}
           alt="Receipt"
-          className="mt-10 max-w-[432px] w-full"
+          className="mt-10 max-w-[1374px] w-full"
         />
       </div>
     </div>

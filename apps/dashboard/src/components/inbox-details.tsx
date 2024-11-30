@@ -1,4 +1,6 @@
-import { Avatar, AvatarFallback } from "@midday/ui/avatar";
+import { useUserContext } from "@/store/user/hook";
+import { formatDate } from "@/utils/format";
+import { Avatar, AvatarFallback, AvatarImageNext } from "@midday/ui/avatar";
 import { Button } from "@midday/ui/button";
 import { cn } from "@midday/ui/cn";
 import {
@@ -13,7 +15,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@midday/ui/tooltip";
 import { useToast } from "@midday/ui/use-toast";
 import { format } from "date-fns";
 import { MoreVertical, Trash2 } from "lucide-react";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { FilePreview } from "./file-preview";
 import { FormatAmount } from "./format-amount";
@@ -34,6 +35,7 @@ type InboxItem = {
   content_type?: string;
   description?: string;
   transaction?: any;
+  locale?: string;
 };
 
 type Props = {
@@ -56,6 +58,7 @@ export function InboxDetails({
   const { toast } = useToast();
   const [isOpen, setOpen] = useState(false);
   const [showFallback, setShowFallback] = useState(false);
+  const { date_format: dateFormat } = useUserContext((state) => state.data);
 
   const isProcessing = item?.status === "processing" || item?.status === "new";
 
@@ -63,7 +66,7 @@ export function InboxDetails({
     setShowFallback(false);
   }, [item]);
 
-  const handleCopyUrl = async () => {
+  const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(
         `${window.location.origin}/inbox?id=${item.id}`,
@@ -71,7 +74,7 @@ export function InboxDetails({
 
       toast({
         duration: 4000,
-        title: "Copied URL to clipboard.",
+        title: "Copied link to clipboard.",
         variant: "success",
       });
     } catch {}
@@ -126,8 +129,8 @@ export function InboxDetails({
                   Download
                 </a>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleCopyUrl}>
-                Copy URL
+              <DropdownMenuItem onClick={handleCopyLink}>
+                Copy Link
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -144,7 +147,7 @@ export function InboxDetails({
               ) : (
                 <Avatar>
                   {item.website && (
-                    <Image
+                    <AvatarImageNext
                       alt={item.website}
                       width={40}
                       height={40}
@@ -153,6 +156,7 @@ export function InboxDetails({
                         showFallback && "hidden",
                       )}
                       src={`https://img.logo.dev/${item.website}?token=pk_X-1ZO13GSgeOoUrIuJ6GMQ`}
+                      quality={100}
                       onError={() => {
                         setShowFallback(true);
                       }}
@@ -197,7 +201,7 @@ export function InboxDetails({
                 {isProcessing && !item.date && (
                   <Skeleton className="h-3 w-[50px] rounded-sm" />
                 )}
-                {item.date && format(new Date(item.date), "PP")}
+                {item.date && formatDate(item.date, dateFormat)}
               </div>
 
               <div className="flex space-x-4 items-center ml-auto mt-1">

@@ -45,6 +45,7 @@ export async function getCurrentUserTeamQuery(supabase: Client) {
   if (!session?.user) {
     return;
   }
+
   return getUserQuery(supabase, session.user?.id);
 }
 
@@ -163,12 +164,15 @@ export type GetTransactionsParams = {
     statuses?: string[];
     attachments?: "include" | "exclude";
     categories?: string[];
+    tags?: string[];
     accounts?: string[];
     assignees?: string[];
     type?: "income" | "expense";
     start?: string;
     end?: string;
     recurring?: string[];
+    amount_range?: [number, number];
+    amount?: [string, string];
   };
 };
 
@@ -182,12 +186,15 @@ export async function getTransactionsQuery(
     statuses,
     attachments,
     categories,
+    tags,
     type,
     accounts,
     start,
     end,
     assignees,
     recurring,
+    amount_range,
+    amount,
   } = filter || {};
 
   const columns = [
@@ -207,6 +214,7 @@ export async function getTransactionsQuery(
     "category:transaction_categories(id, name, color, slug)",
     "bank_account:bank_accounts(id, name, currency, bank_connection:bank_connections(id, logo_url))",
     "attachments:transaction_attachments(id, name, size, path, type)",
+    "tags:transaction_tags(id, tag_id, tag:tags(id, name))",
     "vat:calculated_vat",
   ];
 
@@ -227,6 +235,8 @@ export async function getTransactionsQuery(
       query.order("bank_account(name)", { ascending });
     } else if (column === "category") {
       query.order("category(name)", { ascending });
+    } else if (column === "tags") {
+      query.order("is_transaction_tagged", { ascending });
     } else {
       query.order(column, { ascending });
     }
@@ -246,7 +256,7 @@ export async function getTransactionsQuery(
 
   if (searchQuery) {
     if (!Number.isNaN(Number.parseInt(searchQuery))) {
-      query.like("amount_text", `%${searchQuery}%`);
+      query.eq("amount", Number(searchQuery));
     } else {
       query.textSearch("fts_vector", `'${searchQuery}'`);
     }
@@ -279,6 +289,15 @@ export async function getTransactionsQuery(
     query.or(matchCategory);
   }
 
+  if (tags) {
+    query
+      .select(
+        [...columns, "temp_filter_tags:transaction_tags!inner()"].join(","),
+      )
+      .eq("team_id", teamId)
+      .in("temp_filter_tags.tag_id", tags);
+  }
+
   if (recurring) {
     if (recurring.includes("all")) {
       query.eq("recurring", true);
@@ -302,6 +321,21 @@ export async function getTransactionsQuery(
 
   if (assignees?.length) {
     query.in("assigned_id", assignees);
+  }
+
+  if (amount_range) {
+    query.gte("amount", amount_range[0]);
+    query.lte("amount", amount_range[1]);
+  }
+
+  if (amount?.length === 2) {
+    const [operator, value] = amount;
+
+    if (operator === "gte") {
+      query.gte("amount", value);
+    } else if (operator === "lte") {
+      query.lte("amount", value);
+    }
   }
 
   const { data, count } = await query.range(from, to);
@@ -337,6 +371,7 @@ export async function getTransactionQuery(supabase: Client, id: string) {
     "assigned:assigned_id(*)",
     "category:category_slug(id, name, vat)",
     "attachments:transaction_attachments(*)",
+    "tags:transaction_tags(id, tag:tags(id, name))",
     "bank_account:bank_accounts(id, name, currency, bank_connection:bank_connections(id, logo_url))",
     "vat:calculated_vat",
   ];
@@ -638,6 +673,7 @@ export async function getVaultQuery(supabase: Client, params: GetVaultParams) {
           { name: "inbox", isFolder: true },
           { name: "imports", isFolder: true },
           { name: "transactions", isFolder: true },
+          { name: "invoices", isFolder: true },
         ];
 
   const filteredData = (data ?? []).map((item) => ({
@@ -868,7 +904,7 @@ export async function getTrackerProjectQuery(
 ) {
   return supabase
     .from("tracker_projects")
-    .select("*")
+    .select("*, tags:tracker_project_tags(id, tag:tags(id, name))")
     .eq("id", params.projectId)
     .eq("team_id", params.teamId)
     .single();
@@ -887,6 +923,7 @@ export type GetTrackerProjectsQueryParams = {
   };
   filter?: {
     status?: "in_progress" | "completed";
+    customers?: string[];
   };
 };
 
@@ -904,12 +941,12 @@ export async function getTrackerProjectsQuery(
     start,
     end,
   } = params;
-  const { status } = filter || {};
+  const { status, customers } = filter || {};
 
   const query = supabase
     .from("tracker_projects")
     .select(
-      "*, total_duration, users:get_assigned_users_for_project, total_amount:get_project_total_amount",
+      "*, total_duration, users:get_assigned_users_for_project, total_amount:get_project_total_amount, customer:customer_id(id, name, website), tags:tracker_project_tags(id, tag:tags(id, name))",
       {
         count: "exact",
       },
@@ -929,6 +966,10 @@ export async function getTrackerProjectsQuery(
     query.ilike("name", `%${search.query}%`);
   }
 
+  if (customers?.length) {
+    query.in("customer_id", customers);
+  }
+
   if (sort) {
     const [column, value] = sort;
     if (column === "time") {
@@ -937,6 +978,10 @@ export async function getTrackerProjectsQuery(
       // query.order("total_amount", { ascending: value === "asc" });
     } else if (column === "assigned") {
       // query.order("assigned_id", { ascending: value === "asc" });
+    } else if (column === "customer") {
+      query.order("customer(name)", { ascending: value === "asc" });
+    } else if (column === "tags") {
+      query.order("is_project_tagged", { ascending: value === "asc" });
     } else {
       query.order(column, { ascending: value === "asc" });
     }
@@ -970,7 +1015,7 @@ export async function getTrackerRecordsByDateQuery(
   const query = supabase
     .from("tracker_entries")
     .select(
-      "*, assigned:assigned_id(id, full_name, avatar_url), project:project_id(id, name, rate, currency)",
+      "*, assigned:assigned_id(id, full_name, avatar_url), project:project_id(id, name, rate, currency, customer:customer_id(id, name))",
     )
     .eq("team_id", teamId)
     .eq("date", formatISO(new UTCDate(date), { representation: "date" }));
@@ -1118,4 +1163,187 @@ export async function getInboxSearchQuery(
 
 export async function getTeamSettingsQuery(supabase: Client, teamId: string) {
   return supabase.from("teams").select("*").eq("id", teamId).single();
+}
+
+export type GetInvoicesQueryParams = {
+  teamId: string;
+  from?: number;
+  to?: number;
+  searchQuery?: string | null;
+  filter?: {
+    statuses?: string[] | null;
+    customers?: string[] | null;
+    start?: string | null;
+    end?: string | null;
+  };
+  sort?: string[] | null;
+};
+
+export async function getInvoicesQuery(
+  supabase: Client,
+  params: GetInvoicesQueryParams,
+) {
+  const { teamId, filter, searchQuery, sort, from = 0, to = 25 } = params;
+  const { statuses, start, end, customers } = filter || {};
+
+  const query = supabase
+    .from("invoices")
+    .select(
+      "id, invoice_number, internal_note, token, due_date, issue_date, paid_at, updated_at, viewed_at, amount, template, currency, status, vat, tax, customer:customer_id(id, name, website), customer_name",
+      { count: "exact" },
+    )
+    .eq("team_id", teamId);
+
+  if (sort) {
+    const [column, value] = sort;
+
+    const ascending = value === "asc";
+
+    if (column === "customer") {
+      query.order("customer(name)", { ascending });
+    } else if (column === "recurring") {
+      // Don't do anything until we have a recurring invoice table
+    } else if (column) {
+      query.order(column, { ascending });
+    }
+  } else {
+    query.order("created_at", { ascending: false });
+  }
+
+  if (statuses) {
+    query.in("status", statuses);
+  }
+
+  if (start && end) {
+    const fromDate = new UTCDate(start);
+    const toDate = new UTCDate(end);
+
+    query.gte("due_date", fromDate.toISOString());
+    query.lte("due_date", toDate.toISOString());
+  }
+
+  if (customers?.length) {
+    query.in("customer_id", customers);
+  }
+
+  if (searchQuery) {
+    if (!Number.isNaN(Number.parseInt(searchQuery))) {
+      query.eq("amount", Number(searchQuery));
+    } else {
+      query.textSearch("fts", `'${searchQuery}'`);
+    }
+  }
+
+  const { data, count } = await query.range(from, to);
+
+  return {
+    meta: {
+      count,
+    },
+    data,
+  };
+}
+
+export type GetInvoiceSummaryParams = {
+  teamId: string;
+  status?: "paid" | "cancelled";
+};
+
+export async function getInvoiceSummaryQuery(
+  supabase: Client,
+  params: GetInvoiceSummaryParams,
+) {
+  const { teamId, status } = params;
+
+  return supabase.rpc("get_invoice_summary", {
+    team_id: teamId,
+    status,
+  });
+}
+
+export async function getPaymentStatusQuery(supabase: Client, teamId: string) {
+  return supabase
+    .rpc("get_payment_score", {
+      team_id: teamId,
+    })
+    .single();
+}
+
+export async function getCustomersQuery(supabase: Client, teamId: string) {
+  return supabase
+    .from("customers")
+    .select("*")
+    .eq("team_id", teamId)
+    .order("created_at", { ascending: false })
+    .limit(100);
+}
+
+export async function getCustomerQuery(supabase: Client, customerId: string) {
+  return supabase.from("customers").select("*").eq("id", customerId).single();
+}
+
+export async function getInvoiceTemplatesQuery(
+  supabase: Client,
+  teamId: string,
+) {
+  return supabase
+    .from("invoice_templates")
+    .select("*")
+    .eq("team_id", teamId)
+    .single();
+}
+
+export async function getInvoiceQuery(supabase: Client, id: string) {
+  return supabase
+    .from("invoices")
+    .select("*, customer:customer_id(name, website), team:team_id(name)")
+    .eq("id", id)
+    .single();
+}
+
+export async function getDraftInvoiceQuery(supabase: Client, id: string) {
+  return supabase
+    .from("invoices")
+    .select(
+      "id, due_date, invoice_number, template, status, discount, amount, currency, line_items, payment_details, note_details, customer_details, vat, tax, from_details, issue_date, customer_id, customer_name, token, top_block, bottom_block",
+    )
+    .eq("id", id)
+    .single();
+}
+
+type SearchInvoiceNumberParams = {
+  teamId: string;
+  query: string;
+};
+
+export async function searchInvoiceNumberQuery(
+  supabase: Client,
+  params: SearchInvoiceNumberParams,
+) {
+  return supabase
+    .from("invoices")
+    .select("invoice_number")
+    .eq("team_id", params.teamId)
+    .ilike("invoice_number", `%${params.query}`);
+}
+
+export async function getLastInvoiceNumberQuery(
+  supabase: Client,
+  teamId: string,
+) {
+  const { data } = await supabase
+    .rpc("get_next_invoice_number", {
+      team_id: teamId,
+    })
+    .single();
+
+  return { data };
+}
+
+export async function getTagsQuery(supabase: Client, teamId: string) {
+  return supabase
+    .from("tags")
+    .select("*")
+    .eq("team_id", teamId)
+    .order("created_at", { ascending: false });
 }

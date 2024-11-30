@@ -16,13 +16,22 @@ export default {
     description: "Change the language used in the user interface.",
     placeholder: "Select language",
   },
+  locale: {
+    title: "Locale",
+    searchPlaceholder: "Search locale",
+    description:
+      "Sets the region and language preferences for currency, dates, and other locale-specific formats.",
+    placeholder: "Select locale",
+  },
   languages: {
     en: "English",
     sv: "Swedish",
   },
   timezone: {
     title: "Time Zone",
-    description: "Current time zone setting.",
+    searchPlaceholder: "Search timezone",
+    description:
+      "Defines the default time zone used for displaying times in the app.",
     placeholder: "Select timezone",
   },
   spending_period: {
@@ -59,6 +68,7 @@ export default {
     inbox: "Inbox",
     imports: "Imports",
     transactions: "Transactions",
+    invoices: "Invoices",
   },
   mfa_status: {
     verified: "Verified",
@@ -77,6 +87,9 @@ export default {
     match: "Receive notifications about matches.",
     transaction: "Receive notifications about a new transaction.",
     transactions: "Receive notifications about new transactions.",
+    "invoice.paid": "Receive notifications about paid invoices.",
+    "invoice.overdue": "Receive notifications about overdue invoices.",
+    "inbox.match": "Receive notifications about new matches in your inbox.",
   },
   widgets: {
     insights: "Assistant",
@@ -173,4 +186,26 @@ export default {
     e_learning_materials: "E-learning Materials",
     competency_assessment_forms: "Competency Assessment Forms",
   },
+  invoice_status: {
+    draft: "Draft",
+    overdue: "Overdue",
+    paid: "Paid",
+    unpaid: "Unpaid",
+    canceled: "Canceled",
+  },
+  payment_status: {
+    none: "Unknown",
+    good: "Good",
+    average: "Average",
+    bad: "Bad",
+  },
+  payment_status_description: {
+    none: "No payment history yet.",
+    good: "Consistently pay on time.",
+    average: "Mostly on time.",
+    bad: "Room for improvement.",
+  },
+  "invoice_count#zero": "No invoices",
+  "invoice_count#one": "1 invoice",
+  "invoice_count#other": "{count} invoices",
 } as const;

@@ -13,23 +13,17 @@ import {
 import { Footer } from "../components/footer";
 import { Logo } from "../components/logo";
 
-interface WelcomeProps {
-  companyName: string;
+interface Props {
+  customerName: string;
   teamName: string;
   link: string;
 }
 
-const baseUrl =
-  process.env.VERCEL_ENV === "production"
-    ? "https://midday.ai/email"
-    : "http://localhost:3000/email";
-
 export const InvoiceEmail = ({
-  companyName = "Customer",
+  customerName = "Customer",
   teamName = "Midday",
   link = "https://app.midday.ai/i/1234567890",
-}: WelcomeProps) => {
-  const firstName = companyName.split(" ").at(0);
+}: Props) => {
   const text = `You’ve Received an Invoice from ${teamName}`;
 
   return (
@@ -65,18 +59,17 @@ export const InvoiceEmail = ({
             className="border-transparent md:border-[#E8E7E1] my-[40px] mx-auto p-[20px] max-w-[600px]"
             style={{ borderStyle: "solid", borderWidth: 1 }}
           >
-            <Logo baseUrl={baseUrl} />
+            <Logo />
             <Heading className="text-[#121212] text-[21px] font-normal text-center p-0 my-[30px] mx-0">
               You’ve Received an Invoice <br /> from {teamName}
             </Heading>
 
             <br />
 
-            <span className="font-medium">Hi {firstName},</span>
+            <span className="font-medium">Hi {customerName},</span>
             <Text className="text-[#121212]">
-              Please review your invoice and make sure to pay it on time. If
-              anything is unclear, feel free to add a comment by viewing the
-              invoice.
+              Please review your invoice and make sure to pay it on time. If you
+              have any questions, feel free to reply to this email.
             </Text>
 
             <Section className="text-center mt-[50px] mb-[50px]">
@@ -90,7 +83,7 @@ export const InvoiceEmail = ({
 
             <br />
 
-            <Footer baseUrl={baseUrl} />
+            <Footer />
           </Container>
         </Body>
       </Tailwind>

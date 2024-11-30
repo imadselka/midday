@@ -48,7 +48,7 @@ export function DataTableHeader({ table, loading }: Props) {
   return (
     <TableHeader>
       <TableRow className="h-[45px] hover:bg-transparent">
-        <TableHead className="w-[50px] hidden md:table-cell px-3 md:px-4 py-2">
+        <TableHead className="min-w-[50px] hidden md:table-cell px-3 md:px-4 py-2">
           <Checkbox
             checked={
               table?.getIsAllPageRowsSelected() ||
@@ -61,7 +61,7 @@ export function DataTableHeader({ table, loading }: Props) {
         </TableHead>
 
         {isVisible("date") && (
-          <TableHead className="w-[120px] px-3 md:px-4 py-2">
+          <TableHead className="min-w-[120px] px-3 md:px-4 py-2">
             <Button
               className="p-0 hover:bg-transparent space-x-2"
               variant="ghost"
@@ -89,7 +89,7 @@ export function DataTableHeader({ table, loading }: Props) {
         )}
 
         {isVisible("amount") && (
-          <TableHead className="md:w-[200px] px-3 md:px-4 py-2">
+          <TableHead className="md:min-w-[200px] px-3 md:px-4 py-2">
             <Button
               className="p-0 hover:bg-transparent space-x-2"
               variant="ghost"
@@ -105,7 +105,7 @@ export function DataTableHeader({ table, loading }: Props) {
         )}
 
         {isVisible("category") && (
-          <TableHead className="md:w-[260px] hidden md:table-cell px-3 md:px-4 py-2">
+          <TableHead className="md:min-w-[200px] hidden md:table-cell px-3 md:px-4 py-2">
             <Button
               className="p-0 hover:bg-transparent space-x-2"
               variant="ghost"
@@ -118,6 +118,18 @@ export function DataTableHeader({ table, loading }: Props) {
               {"category" === column && value === "desc" && (
                 <ArrowUp size={16} />
               )}
+            </Button>
+          </TableHead>
+        )}
+
+        {isVisible("tags") && (
+          <TableHead className="md:min-w-[170px] hidden md:table-cell px-3 md:px-4 py-2">
+            <Button
+              className="p-0 hover:bg-transparent space-x-2"
+              variant="ghost"
+              onClick={() => createSortQuery("tags")}
+            >
+              <span>Tags</span>
             </Button>
           </TableHead>
         )}
@@ -141,7 +153,7 @@ export function DataTableHeader({ table, loading }: Props) {
         )}
 
         {isVisible("method") && (
-          <TableHead className="md:w-[200px] hidden md:table-cell px-3 md:px-4 py-2">
+          <TableHead className="md:min-w-[140px] hidden md:table-cell px-3 md:px-4 py-2">
             <Button
               className="p-0 hover:bg-transparent space-x-2"
               variant="ghost"

@@ -1,24 +1,37 @@
 "use client";
 
-import { useCurrentLocale } from "@/locales/client";
-import MotionNumber from "motion-number";
+import { useUserContext } from "@/store/user/hook";
+import NumberFlow from "@number-flow/react";
 
 type Props = {
   value: number;
   currency: string;
+  minimumFractionDigits?: number;
+  maximumFractionDigits?: number;
+  locale?: string;
 };
 
-export function AnimatedNumber({ value, currency }: Props) {
-  const locale = useCurrentLocale();
+export function AnimatedNumber({
+  value,
+  currency,
+  minimumFractionDigits,
+  maximumFractionDigits,
+  locale,
+}: Props) {
+  const { locale: currentLocale } = useUserContext((state) => state.data);
+  const localeToUse = locale || currentLocale;
 
   return (
-    <MotionNumber
+    <NumberFlow
       value={value}
       format={{
         style: "currency",
         currency: currency ?? "USD",
+        minimumFractionDigits,
+        maximumFractionDigits,
       }}
-      locales={locale}
+      willChange
+      locales={localeToUse}
     />
   );
 }

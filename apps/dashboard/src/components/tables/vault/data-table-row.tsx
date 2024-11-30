@@ -10,8 +10,9 @@ import { FileIcon } from "@/components/file-icon";
 import { FilePreview } from "@/components/file-preview";
 import { SelectTag } from "@/components/select-tag";
 import { useI18n } from "@/locales/client";
+import { useUserContext } from "@/store/user/hook";
 import { useVaultContext } from "@/store/vault/hook";
-import { formatSize } from "@/utils/format";
+import { formatDate, formatSize } from "@/utils/format";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -52,7 +53,6 @@ import { Input } from "@midday/ui/input";
 import { TableCell, TableRow } from "@midday/ui/table";
 import { useToast } from "@midday/ui/use-toast";
 import { isSupportedFilePreview } from "@midday/utils";
-import { format } from "date-fns";
 import ms from "ms";
 import { useAction } from "next-safe-action/hooks";
 import Link from "next/link";
@@ -74,6 +74,8 @@ export const translatedFolderName = (t: any, folder: string) => {
       return t("folders.imports");
     case "transactions":
       return t("folders.transactions");
+    case "invoices":
+      return t("folders.invoices");
     default:
       return decodeURIComponent(folder);
   }
@@ -89,7 +91,7 @@ type Props = {
 function RowTitle({ name: initialName, isEditing, path, href }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const t = useI18n();
-  const [cancelled, setCancelled] = useState(false);
+  const [canceled, setCanceled] = useState(false);
   const { toast } = useToast();
   const [name, setName] = useState(initialName ?? DEFAULT_FOLDER_NAME);
   const { deleteItem, data } = useVaultContext((s) => s);
@@ -107,7 +109,7 @@ function RowTitle({ name: initialName, isEditing, path, href }: Props) {
     () => {
       const name = initialName ?? DEFAULT_FOLDER_NAME;
       deleteItem(name);
-      setCancelled(true);
+      setCanceled(true);
     },
     { enableOnFormTags: true, enabled: isEditing },
   );
@@ -126,7 +128,7 @@ function RowTitle({ name: initialName, isEditing, path, href }: Props) {
 
   const checkAndCreateFolder = () => {
     if (
-      !cancelled &&
+      !canceled &&
       name === initialName &&
       data.some((folder) => folder.name === name && folder.isFolder)
     ) {
@@ -177,6 +179,7 @@ export function DataTableRow({ data }: { data: any }) {
   const params = useParams();
   const updateDocument = useAction(updateDocumentAction);
   const { deleteItem, createFolder } = useVaultContext((s) => s);
+  const { date_format: dateFormat } = useUserContext((state) => state.data);
 
   const folders = params?.folders ?? [];
   const isDefaultFolder = [
@@ -184,6 +187,7 @@ export function DataTableRow({ data }: { data: any }) {
     "transactions",
     "inbox",
     "import",
+    "invoices",
   ].includes(data.name);
 
   const disableActions = ["transactions"].includes(folders?.at(0));
@@ -296,7 +300,7 @@ export function DataTableRow({ data }: { data: any }) {
               <Tag name={data.tag} />
             </TableCell>
             <TableCell>
-              {data?.created_at ? format(new Date(data.created_at), "Pp") : "-"}
+              {data?.created_at ? formatDate(data.created_at, dateFormat) : "-"}
             </TableCell>
             <TableCell>
               <DropdownMenu>

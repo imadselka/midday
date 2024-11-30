@@ -101,21 +101,25 @@ export function TrackerSchedule({
         const processedData = result?.data.map((event) =>
           transformTrackerData(event, selectedDate),
         );
-        return prevData
-          .filter((event) => event.id !== NEW_EVENT_ID)
-          .concat(processedData);
+        return [
+          ...prevData.filter((event) => event.id !== NEW_EVENT_ID),
+          ...processedData,
+        ];
       });
 
-      const newTotalDuration = result.data.reduce((total, event) => {
-        const start = event.start
-          ? new Date(event.start)
-          : new Date(`${event.date || selectedDate}T09:00:00`);
-        const end = event.end
-          ? new Date(event.end)
-          : addSeconds(start, event.duration || 0);
-        return total + differenceInSeconds(end, start);
-      }, 0);
-      setTotalDuration(newTotalDuration);
+      setTotalDuration((prevTotalDuration) => {
+        const newEventsDuration = result.data.reduce((total, event) => {
+          const start = event.start
+            ? new Date(event.start)
+            : new Date(`${event.date || selectedDate}T09:00:00`);
+          const end = event.stop
+            ? new Date(event.stop)
+            : addSeconds(start, event.duration || 0);
+          return total + differenceInSeconds(end, start);
+        }, 0);
+
+        return prevTotalDuration + newEventsDuration;
+      });
 
       const lastEvent = result.data.at(-1);
       setSelectedEvent(
@@ -381,7 +385,7 @@ export function TrackerSchedule({
 
       <TrackerDaySelect />
 
-      <ScrollArea ref={scrollRef} className="h-[calc(100vh-470px)] mt-8">
+      <ScrollArea ref={scrollRef} className="h-[calc(100vh-480px)] mt-8">
         <div className="flex text-[#878787] text-xs">
           <div className="w-20 flex-shrink-0 select-none">
             {hours.map((hour) => (
@@ -396,7 +400,7 @@ export function TrackerSchedule({
           </div>
 
           <div
-            className="relative flex-grow border border-border border-t-0"
+            className="relative flex-grow border border-border border-t-0 cursor-default select-none"
             onMouseMove={handleMouseMove}
             onMouseDown={(e) => {
               if (e.button === 0 && !isContextMenuOpen) {
@@ -458,6 +462,9 @@ export function TrackerSchedule({
                           )}
                           )
                         </span>
+                        {event.project.customer && (
+                          <span>{event.project.customer.name}</span>
+                        )}
                         <span>{event.description}</span>
                       </div>
                       {event.id !== NEW_EVENT_ID && (

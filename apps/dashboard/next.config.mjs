@@ -12,6 +12,8 @@ const config = {
   poweredByHeader: false,
   reactStrictMode: true,
   images: {
+    loader: "custom",
+    loaderFile: "./image-loader.ts",
     remotePatterns: [
       {
         protocol: "https",
@@ -19,9 +21,19 @@ const config = {
       },
     ],
   },
-  transpilePackages: ["@midday/ui", "@midday/jobs", "@midday/tailwind"],
+  transpilePackages: [
+    "@midday/ui",
+    "@midday/jobs",
+    "@midday/tailwind",
+    "@midday/invoice",
+  ],
   eslint: {
     ignoreDuringBuilds: true,
+  },
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
   },
   typescript: {
     ignoreBuildErrors: true,
@@ -50,4 +62,5 @@ export default withSentryConfig(withBundleAnalyzer(config), {
   widenClientFileUpload: true,
   hideSourceMaps: true,
   disableLogger: true,
+  tunnelRoute: "/monitoring",
 });

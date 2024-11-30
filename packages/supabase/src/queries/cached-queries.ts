@@ -7,6 +7,8 @@ import {
   type GetBurnRateQueryParams,
   type GetCategoriesParams,
   type GetExpensesQueryParams,
+  type GetInvoiceSummaryParams,
+  type GetInvoicesQueryParams,
   type GetMetricsParams,
   type GetRunwayQueryParams,
   type GetSpendingParams,
@@ -18,10 +20,17 @@ import {
   getBankConnectionsByTeamIdQuery,
   getBurnRateQuery,
   getCategoriesQuery,
+  getCustomersQuery,
   getExpensesQuery,
+  getInvoiceSummaryQuery,
+  getInvoiceTemplatesQuery,
+  getInvoicesQuery,
+  getLastInvoiceNumberQuery,
   getMetricsQuery,
+  getPaymentStatusQuery,
   getRunwayQuery,
   getSpendingQuery,
+  getTagsQuery,
   getTeamBankAccountsQuery,
   getTeamInvitesQuery,
   getTeamMembersQuery,
@@ -52,22 +61,25 @@ export const getTransactions = async (
     },
     ["transactions", teamId],
     {
-      revalidate: 180,
+      revalidate: 600,
       tags: [`transactions_${teamId}`],
     },
   )(params);
 };
 
+// Cache per request
 export const getSession = cache(async () => {
   const supabase = createClient();
 
   return supabase.auth.getSession();
 });
 
-export const getUser = async () => {
+// Cache per request and revalidate every 30 minutes
+export const getUser = cache(async () => {
   const {
     data: { session },
   } = await getSession();
+
   const userId = session?.user?.id;
 
   if (!userId) {
@@ -83,10 +95,11 @@ export const getUser = async () => {
     ["user", userId],
     {
       tags: [`user_${userId}`],
-      revalidate: 180,
+      // 30 minutes, jwt expires in 1 hour
+      revalidate: 1800,
     },
-  )(userId);
-};
+  )();
+});
 
 export const getTeamUser = async () => {
   const supabase = createClient();
@@ -102,7 +115,7 @@ export const getTeamUser = async () => {
     ["team", "user", data.id],
     {
       tags: [`team_user_${data.id}`],
-      revalidate: 180,
+      revalidate: 1800,
     },
   )(data.id);
 };
@@ -340,7 +353,7 @@ export const getTrackerProjects = async (
     ["tracker_projects", teamId],
     {
       tags: [`tracker_projects_${teamId}`],
-      revalidate: 180,
+      revalidate: 3600,
     },
   )(params);
 };
@@ -363,7 +376,7 @@ export const getTrackerRecordsByRange = async (
     ["tracker_entries", teamId],
     {
       tags: [`tracker_entries_${teamId}`],
-      revalidate: 180,
+      revalidate: 3600,
     },
   )(params);
 };
@@ -441,6 +454,153 @@ export const getTeamSettings = async () => {
     ["team_settings", teamId],
     {
       tags: [`team_settings_${teamId}`],
+      revalidate: 3600,
+    },
+  )();
+};
+
+export const getInvoiceSummary = async (
+  params?: Omit<GetInvoiceSummaryParams, "teamId">,
+) => {
+  const supabase = createClient();
+  const user = await getUser();
+  const teamId = user?.data?.team_id;
+
+  return unstable_cache(
+    async () => {
+      return getInvoiceSummaryQuery(supabase, { ...params, teamId });
+    },
+    ["invoice_summary", teamId],
+    {
+      tags: [`invoice_summary_${teamId}`],
+      revalidate: 3600,
+    },
+  )(params);
+};
+
+export const getPaymentStatus = async () => {
+  const supabase = createClient();
+  const user = await getUser();
+  const teamId = user?.data?.team_id;
+
+  if (!teamId) {
+    return null;
+  }
+
+  return unstable_cache(
+    async () => {
+      return getPaymentStatusQuery(supabase, teamId);
+    },
+    ["payment_status", teamId],
+    {
+      tags: [`payment_status_${teamId}`],
+      revalidate: 3600,
+    },
+  )();
+};
+
+export const getCustomers = async () => {
+  const supabase = createClient();
+  const user = await getUser();
+  const teamId = user?.data?.team_id;
+
+  if (!teamId) {
+    return null;
+  }
+
+  return unstable_cache(
+    async () => {
+      return getCustomersQuery(supabase, teamId);
+    },
+    ["customers", teamId],
+    {
+      tags: [`customers_${teamId}`],
+      revalidate: 3600,
+    },
+  )();
+};
+
+export const getInvoices = async (
+  params?: Omit<GetInvoicesQueryParams, "teamId">,
+) => {
+  const supabase = createClient();
+  const user = await getUser();
+  const teamId = user?.data?.team_id;
+
+  if (!teamId) {
+    return null;
+  }
+
+  return unstable_cache(
+    async () => {
+      return getInvoicesQuery(supabase, { ...params, teamId });
+    },
+    ["invoices", teamId],
+    {
+      tags: [`invoices_${teamId}`],
+      revalidate: 3600,
+    },
+  )(params);
+};
+
+export const getInvoiceTemplates = async () => {
+  const supabase = createClient();
+  const user = await getUser();
+  const teamId = user?.data?.team_id;
+
+  if (!teamId) {
+    return null;
+  }
+
+  return unstable_cache(
+    async () => {
+      return getInvoiceTemplatesQuery(supabase, teamId);
+    },
+    ["invoice_templates", teamId],
+    {
+      tags: [`invoice_templates_${teamId}`],
+      revalidate: 3600,
+    },
+  )();
+};
+
+export const getLastInvoiceNumber = async () => {
+  const supabase = createClient();
+  const user = await getUser();
+  const teamId = user?.data?.team_id;
+
+  if (!teamId) {
+    return null;
+  }
+
+  return unstable_cache(
+    async () => {
+      return getLastInvoiceNumberQuery(supabase, teamId);
+    },
+    ["invoice_number", teamId],
+    {
+      tags: [`invoice_number_${teamId}`],
+      revalidate: 3600,
+    },
+  )();
+};
+
+export const getTags = async () => {
+  const supabase = createClient();
+  const user = await getUser();
+  const teamId = user?.data?.team_id;
+
+  if (!teamId) {
+    return null;
+  }
+
+  return unstable_cache(
+    async () => {
+      return getTagsQuery(supabase, teamId);
+    },
+    ["tags", teamId],
+    {
+      tags: [`tags_${teamId}`],
       revalidate: 3600,
     },
   )();

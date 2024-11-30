@@ -21,12 +21,14 @@ import { readStreamableValue } from "ai/rsc";
 import { formatISO } from "date-fns";
 import {
   parseAsArrayOf,
+  parseAsInteger,
   parseAsString,
   parseAsStringLiteral,
   useQueryStates,
 } from "nuqs";
 import { useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
+import { AmountRange } from "./amount-range";
 import { FilterList } from "./filter-list";
 import { SelectCategory } from "./select-category";
 
@@ -48,7 +50,6 @@ type Props = {
   }[];
   tags?: {
     id: string;
-    slug: string;
     name: string;
   }[];
 };
@@ -113,8 +114,10 @@ export function TransactionsSearchFilter({
       start: parseAsString,
       end: parseAsString,
       categories: parseAsArrayOf(parseAsString),
+      tags: parseAsArrayOf(parseAsString),
       accounts: parseAsArrayOf(parseAsString),
       assignees: parseAsArrayOf(parseAsString),
+      amount_range: parseAsArrayOf(parseAsInteger),
       recurring: parseAsArrayOf(
         parseAsStringLiteral(["all", "weekly", "monthly", "annually"] as const),
       ),
@@ -128,6 +131,7 @@ export function TransactionsSearchFilter({
     },
     {
       shallow: false,
+      history: "push",
     },
   );
 
@@ -140,6 +144,7 @@ export function TransactionsSearchFilter({
     },
     {
       enableOnFormTags: true,
+      enabled: Boolean(prompt),
     },
   );
 
@@ -171,9 +176,10 @@ export function TransactionsSearchFilter({
 
       const { object } = await generateTransactionsFilters(
         prompt,
-        categories
-          ? `Categories: ${categories?.map((category) => category.name).join(", ")}`
-          : "",
+        `
+          Categories: ${categories?.map((category) => category.name).join(", ")}
+          Tags: ${tags?.map((tag) => tag.name).join(", ")}
+        `,
       );
 
       let finalObject = {};
@@ -190,10 +196,11 @@ export function TransactionsSearchFilter({
               ) ?? null,
             tags:
               partialObject?.tags?.map(
-                (name: string) => tags?.find((tag) => tag.name === name)?.slug,
+                (name: string) => tags?.find((tag) => tag.name === name)?.id,
               ) ?? null,
             recurring: partialObject?.recurring ?? null,
             q: partialObject?.name ?? null,
+            amount_range: partialObject?.amount_range ?? null,
           };
         }
       }
@@ -263,6 +270,7 @@ export function TransactionsSearchFilter({
           attachmentsFilters={attachmentsFilters}
           tags={tags}
           recurringFilters={recurringFilters}
+          amountRange={filters.amount_range}
         />
       </div>
 
@@ -276,7 +284,7 @@ export function TransactionsSearchFilter({
         <DropdownMenuGroup>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
-              <Icons.CalendarMonth className="mr-2 h-4 w-4" />
+              <Icons.CalendarMonth className="mr-2 size-4" />
               <span>Date</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
@@ -288,7 +296,6 @@ export function TransactionsSearchFilter({
                 <Calendar
                   mode="range"
                   initialFocus
-                  today={filters.start ? new Date(filters.start) : new Date()}
                   toDate={new Date()}
                   selected={{
                     from: filters.start && new Date(filters.start),
@@ -317,7 +324,25 @@ export function TransactionsSearchFilter({
         <DropdownMenuGroup>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
-              <Icons.Status className="mr-2 h-4 w-4" />
+              <Icons.Amount className="mr-2 size-4" />
+              <span>Amount</span>
+            </DropdownMenuSubTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent
+                sideOffset={14}
+                alignOffset={-4}
+                className="w-[280px] p-4"
+              >
+                <AmountRange />
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
+        </DropdownMenuGroup>
+
+        <DropdownMenuGroup>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <Icons.Status className="mr-2 size-4" />
               <span>Status</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
@@ -351,7 +376,7 @@ export function TransactionsSearchFilter({
         <DropdownMenuGroup>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
-              <Icons.Attachments className="mr-2 h-4 w-4" />
+              <Icons.Attachments className="mr-2 size-4" />
               <span>Attachments</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
@@ -381,7 +406,7 @@ export function TransactionsSearchFilter({
         <DropdownMenuGroup>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
-              <Icons.Category className="mr-2 h-4 w-4" />
+              <Icons.Category className="mr-2 size-4" />
               <span>Categories</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
@@ -414,7 +439,46 @@ export function TransactionsSearchFilter({
         <DropdownMenuGroup>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
-              <Icons.Accounts className="mr-2 h-4 w-4" />
+              <Icons.Status className="mr-2 h-4 w-4" />
+              <span>Tags</span>
+            </DropdownMenuSubTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent
+                sideOffset={14}
+                alignOffset={-4}
+                className="py-2 max-h-[200px] overflow-y-auto max-w-[220px]"
+              >
+                {tags?.length > 0 ? (
+                  tags?.map((tag) => (
+                    <DropdownMenuCheckboxItem
+                      key={tag.id}
+                      checked={filters?.tags?.includes(tag.id)}
+                      onCheckedChange={() => {
+                        setFilters({
+                          tags: filters?.tags?.includes(tag.id)
+                            ? filters.tags.filter((s) => s !== tag.id).length >
+                              0
+                              ? filters.tags.filter((s) => s !== tag.id)
+                              : null
+                            : [...(filters?.tags ?? []), tag.id],
+                        });
+                      }}
+                    >
+                      {tag.name}
+                    </DropdownMenuCheckboxItem>
+                  ))
+                ) : (
+                  <p className="text-sm text-[#878787] px-2">No tags found</p>
+                )}
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
+        </DropdownMenuGroup>
+
+        <DropdownMenuGroup>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <Icons.Accounts className="mr-2 size-4" />
               <span>Accounts</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
@@ -451,7 +515,7 @@ export function TransactionsSearchFilter({
         <DropdownMenuGroup>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
-              <Icons.Repeat className="mr-2 h-4 w-4" />
+              <Icons.Repeat className="mr-2 size-4" />
               <span>Recurring</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>

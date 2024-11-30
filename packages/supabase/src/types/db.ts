@@ -65,6 +65,7 @@ export type Database = {
           created_by: string
           currency: string | null
           enabled: boolean
+          error_details: string | null
           id: string
           manual: boolean | null
           name: string | null
@@ -81,6 +82,7 @@ export type Database = {
           created_by: string
           currency?: string | null
           enabled?: boolean
+          error_details?: string | null
           id?: string
           manual?: boolean | null
           name?: string | null
@@ -97,6 +99,7 @@ export type Database = {
           created_by?: string
           currency?: string | null
           enabled?: boolean
+          error_details?: string | null
           id?: string
           manual?: boolean | null
           name?: string | null
@@ -195,13 +198,17 @@ export type Database = {
           address_line_2: string | null
           city: string | null
           country: string | null
+          country_code: string | null
           created_at: string
-          email: string | null
+          email: string
           id: string
-          name: string | null
+          name: string
           note: string | null
+          phone: string | null
           state: string | null
           team_id: string
+          token: string
+          vat_number: string | null
           website: string | null
           zip: string | null
         }
@@ -210,13 +217,17 @@ export type Database = {
           address_line_2?: string | null
           city?: string | null
           country?: string | null
+          country_code?: string | null
           created_at?: string
-          email?: string | null
+          email: string
           id?: string
-          name?: string | null
+          name: string
           note?: string | null
+          phone?: string | null
           state?: string | null
           team_id?: string
+          token?: string
+          vat_number?: string | null
           website?: string | null
           zip?: string | null
         }
@@ -225,13 +236,17 @@ export type Database = {
           address_line_2?: string | null
           city?: string | null
           country?: string | null
+          country_code?: string | null
           created_at?: string
-          email?: string | null
+          email?: string
           id?: string
-          name?: string | null
+          name?: string
           note?: string | null
+          phone?: string | null
           state?: string | null
           team_id?: string
+          token?: string
+          vat_number?: string | null
           website?: string | null
           zip?: string | null
         }
@@ -433,83 +448,266 @@ export type Database = {
           },
         ]
       }
+      invoice_comments: {
+        Row: {
+          created_at: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      invoice_templates: {
+        Row: {
+          created_at: string
+          currency: string | null
+          customer_label: string | null
+          date_format: string | null
+          delivery_type: Database["public"]["Enums"]["invoice_delivery_type"]
+          description_label: string | null
+          discount_label: string | null
+          due_date_label: string | null
+          from_details: Json | null
+          from_label: string | null
+          id: string
+          include_decimals: boolean | null
+          include_discount: boolean | null
+          include_qr: boolean | null
+          include_tax: boolean | null
+          include_units: boolean | null
+          include_vat: boolean | null
+          invoice_no_label: string | null
+          issue_date_label: string | null
+          logo_url: string | null
+          note_label: string | null
+          payment_details: Json | null
+          payment_label: string | null
+          price_label: string | null
+          quantity_label: string | null
+          size: Database["public"]["Enums"]["invoice_size"] | null
+          tax_label: string | null
+          tax_rate: number | null
+          team_id: string
+          title: string | null
+          total_label: string | null
+          total_summary_label: string | null
+          vat_label: string | null
+          vat_rate: number | null
+        }
+        Insert: {
+          created_at?: string
+          currency?: string | null
+          customer_label?: string | null
+          date_format?: string | null
+          delivery_type?: Database["public"]["Enums"]["invoice_delivery_type"]
+          description_label?: string | null
+          discount_label?: string | null
+          due_date_label?: string | null
+          from_details?: Json | null
+          from_label?: string | null
+          id?: string
+          include_decimals?: boolean | null
+          include_discount?: boolean | null
+          include_qr?: boolean | null
+          include_tax?: boolean | null
+          include_units?: boolean | null
+          include_vat?: boolean | null
+          invoice_no_label?: string | null
+          issue_date_label?: string | null
+          logo_url?: string | null
+          note_label?: string | null
+          payment_details?: Json | null
+          payment_label?: string | null
+          price_label?: string | null
+          quantity_label?: string | null
+          size?: Database["public"]["Enums"]["invoice_size"] | null
+          tax_label?: string | null
+          tax_rate?: number | null
+          team_id: string
+          title?: string | null
+          total_label?: string | null
+          total_summary_label?: string | null
+          vat_label?: string | null
+          vat_rate?: number | null
+        }
+        Update: {
+          created_at?: string
+          currency?: string | null
+          customer_label?: string | null
+          date_format?: string | null
+          delivery_type?: Database["public"]["Enums"]["invoice_delivery_type"]
+          description_label?: string | null
+          discount_label?: string | null
+          due_date_label?: string | null
+          from_details?: Json | null
+          from_label?: string | null
+          id?: string
+          include_decimals?: boolean | null
+          include_discount?: boolean | null
+          include_qr?: boolean | null
+          include_tax?: boolean | null
+          include_units?: boolean | null
+          include_vat?: boolean | null
+          invoice_no_label?: string | null
+          issue_date_label?: string | null
+          logo_url?: string | null
+          note_label?: string | null
+          payment_details?: Json | null
+          payment_label?: string | null
+          price_label?: string | null
+          quantity_label?: string | null
+          size?: Database["public"]["Enums"]["invoice_size"] | null
+          tax_label?: string | null
+          tax_rate?: number | null
+          team_id?: string
+          title?: string | null
+          total_label?: string | null
+          total_summary_label?: string | null
+          vat_label?: string | null
+          vat_rate?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_settings_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: true
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoices: {
         Row: {
           amount: number | null
+          bottom_block: Json | null
           company_datails: Json | null
           created_at: string
           currency: string | null
-          customer_datails: Json | null
+          customer_details: Json | null
           customer_id: string | null
+          customer_name: string | null
+          discount: number | null
           due_date: string | null
+          file_path: string[] | null
+          file_size: number | null
+          from_details: Json | null
           fts: unknown | null
           id: string
           internal_note: string | null
-          invoice_date: string | null
           invoice_number: string | null
+          issue_date: string | null
           line_items: Json | null
           note: string | null
+          note_details: Json | null
           paid_at: string | null
-          path_tokens: string[] | null
-          payment_datails: Json | null
+          payment_details: Json | null
+          reminder_sent_at: string | null
+          sent_to: string | null
           status: Database["public"]["Enums"]["invoice_status"]
+          subtotal: number | null
           tax: number | null
           team_id: string
+          template: Json | null
+          token: string
+          top_block: Json | null
           updated_at: string | null
           url: string | null
+          user_id: string | null
           vat: number | null
+          viewed_at: string | null
         }
         Insert: {
           amount?: number | null
+          bottom_block?: Json | null
           company_datails?: Json | null
           created_at?: string
           currency?: string | null
-          customer_datails?: Json | null
+          customer_details?: Json | null
           customer_id?: string | null
+          customer_name?: string | null
+          discount?: number | null
           due_date?: string | null
+          file_path?: string[] | null
+          file_size?: number | null
+          from_details?: Json | null
           fts?: unknown | null
           id?: string
           internal_note?: string | null
-          invoice_date?: string | null
           invoice_number?: string | null
+          issue_date?: string | null
           line_items?: Json | null
           note?: string | null
+          note_details?: Json | null
           paid_at?: string | null
-          path_tokens?: string[] | null
-          payment_datails?: Json | null
+          payment_details?: Json | null
+          reminder_sent_at?: string | null
+          sent_to?: string | null
           status?: Database["public"]["Enums"]["invoice_status"]
+          subtotal?: number | null
           tax?: number | null
           team_id: string
+          template?: Json | null
+          token?: string
+          top_block?: Json | null
           updated_at?: string | null
           url?: string | null
+          user_id?: string | null
           vat?: number | null
+          viewed_at?: string | null
         }
         Update: {
           amount?: number | null
+          bottom_block?: Json | null
           company_datails?: Json | null
           created_at?: string
           currency?: string | null
-          customer_datails?: Json | null
+          customer_details?: Json | null
           customer_id?: string | null
+          customer_name?: string | null
+          discount?: number | null
           due_date?: string | null
+          file_path?: string[] | null
+          file_size?: number | null
+          from_details?: Json | null
           fts?: unknown | null
           id?: string
           internal_note?: string | null
-          invoice_date?: string | null
           invoice_number?: string | null
+          issue_date?: string | null
           line_items?: Json | null
           note?: string | null
+          note_details?: Json | null
           paid_at?: string | null
-          path_tokens?: string[] | null
-          payment_datails?: Json | null
+          payment_details?: Json | null
+          reminder_sent_at?: string | null
+          sent_to?: string | null
           status?: Database["public"]["Enums"]["invoice_status"]
+          subtotal?: number | null
           tax?: number | null
           team_id?: string
+          template?: Json | null
+          token?: string
+          top_block?: Json | null
           updated_at?: string | null
           url?: string | null
+          user_id?: string | null
           vat?: number | null
+          viewed_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "invoices_created_by_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "invoices_customer_id_fkey"
             columns: ["customer_id"]
@@ -583,31 +781,28 @@ export type Database = {
           },
         ]
       }
-      team_settings: {
+      tags: {
         Row: {
           created_at: string
           id: string
-          setting_key: string
-          setting_value: Json
+          name: string
           team_id: string
         }
         Insert: {
           created_at?: string
           id?: string
-          setting_key: string
-          setting_value: Json
+          name: string
           team_id: string
         }
         Update: {
           created_at?: string
           id?: string
-          setting_key?: string
-          setting_value?: Json
+          name?: string
           team_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "team_settings_team_id_fkey"
+            foreignKeyName: "tags_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "teams"
@@ -621,6 +816,7 @@ export type Database = {
           created_at: string
           document_classification: boolean | null
           email: string | null
+          flags: string[] | null
           id: string
           inbox_email: string | null
           inbox_forwarding: boolean | null
@@ -633,6 +829,7 @@ export type Database = {
           created_at?: string
           document_classification?: boolean | null
           email?: string | null
+          flags?: string[] | null
           id?: string
           inbox_email?: string | null
           inbox_forwarding?: boolean | null
@@ -645,6 +842,7 @@ export type Database = {
           created_at?: string
           document_classification?: boolean | null
           email?: string | null
+          flags?: string[] | null
           id?: string
           inbox_email?: string | null
           inbox_forwarding?: boolean | null
@@ -725,11 +923,58 @@ export type Database = {
           },
         ]
       }
+      tracker_project_tags: {
+        Row: {
+          created_at: string
+          id: string
+          tag_id: string
+          team_id: string
+          tracker_project_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          tag_id: string
+          team_id: string
+          tracker_project_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          tag_id?: string
+          team_id?: string
+          tracker_project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_tags_tracker_project_id_fkey"
+            columns: ["tracker_project_id"]
+            isOneToOne: false
+            referencedRelation: "tracker_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tracker_project_tags_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tracker_projects: {
         Row: {
           billable: boolean | null
           created_at: string
           currency: string | null
+          customer_id: string | null
           description: string | null
           estimate: number | null
           id: string
@@ -746,6 +991,7 @@ export type Database = {
           billable?: boolean | null
           created_at?: string
           currency?: string | null
+          customer_id?: string | null
           description?: string | null
           estimate?: number | null
           id?: string
@@ -758,6 +1004,7 @@ export type Database = {
           billable?: boolean | null
           created_at?: string
           currency?: string | null
+          customer_id?: string | null
           description?: string | null
           estimate?: number | null
           id?: string
@@ -767,6 +1014,13 @@ export type Database = {
           team_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "tracker_projects_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tracker_projects_team_id_fkey"
             columns: ["team_id"]
@@ -965,6 +1219,52 @@ export type Database = {
           },
         ]
       }
+      transaction_tags: {
+        Row: {
+          created_at: string
+          id: string
+          tag_id: string
+          team_id: string
+          transaction_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          tag_id: string
+          team_id: string
+          transaction_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          tag_id?: string
+          team_id?: string
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transaction_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transaction_tags_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transaction_tags_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           amount: number
@@ -1131,6 +1431,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string | null
+          date_format: string | null
           email: string | null
           full_name: string | null
           id: string
@@ -1143,6 +1444,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string | null
+          date_format?: string | null
           email?: string | null
           full_name?: string | null
           id: string
@@ -1155,6 +1457,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string | null
+          date_format?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
@@ -1165,13 +1468,6 @@ export type Database = {
           week_starts_on_monday?: boolean | null
         }
         Relationships: [
-          {
-            foreignKeyName: "users_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "users_team_id_fkey"
             columns: ["team_id"]
@@ -1341,6 +1637,13 @@ export type Database = {
         }
         Returns: string
       }
+      create_team_v2: {
+        Args: {
+          name: string
+          currency?: string
+        }
+        Returns: string
+      }
       determine_transaction_frequency:
         | {
             Args: {
@@ -1420,12 +1723,6 @@ export type Database = {
             }
             Returns: unknown
           }
-      generate_invoice_sequence: {
-        Args: {
-          team_id: string
-        }
-        Returns: number
-      }
       get_all_transactions_by_account: {
         Args: {
           account_id: string
@@ -1573,10 +1870,16 @@ export type Database = {
           status?: Database["public"]["Enums"]["invoice_status"]
         }
         Returns: {
-          total_amount: number
           currency: string
+          total_amount: number
           invoice_count: number
         }[]
+      }
+      get_next_invoice_number: {
+        Args: {
+          team_id: string
+        }
+        Returns: string
       }
       get_payment_score: {
         Args: {
@@ -1787,6 +2090,16 @@ export type Database = {
         }
         Returns: number
       }
+      get_transactions_amount_range_data: {
+        Args: {
+          team_id: string
+          amount_type?: string
+        }
+        Returns: {
+          id: string
+          amount: number
+        }[]
+      }
       group_transactions_v2: {
         Args: {
           p_team_id: string
@@ -1855,6 +2168,18 @@ export type Database = {
       is_fulfilled: {
         Args: {
           "": unknown
+        }
+        Returns: boolean
+      }
+      is_project_tagged: {
+        Args: {
+          project: unknown
+        }
+        Returns: boolean
+      }
+      is_transaction_tagged: {
+        Args: {
+          transaction: unknown
         }
         Returns: boolean
       }
@@ -1949,22 +2274,6 @@ export type Database = {
         }
         Returns: unknown
       }
-      update_team_setting: {
-        Args: {
-          team_id: string
-          setting_key: string
-          setting_path: string[]
-          new_value: Json
-          create_missing?: boolean
-        }
-        Returns: {
-          created_at: string
-          id: string
-          setting_key: string
-          setting_value: Json
-          team_id: string
-        }[]
-      }
     }
     Enums: {
       account_type:
@@ -1978,6 +2287,8 @@ export type Database = {
       connection_status: "disconnected" | "connected" | "unknown"
       inbox_status: "processing" | "pending" | "archived" | "new" | "deleted"
       inbox_type: "invoice" | "expense"
+      invoice_delivery_type: "create" | "create_and_send"
+      invoice_size: "a4" | "letter"
       invoice_status: "draft" | "overdue" | "paid" | "unpaid" | "canceled"
       reportTypes: "profit" | "revenue" | "burn_rate" | "expense"
       teamRoles: "owner" | "member"
@@ -2110,4 +2421,19 @@ export type Enums<
   ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
     ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof PublicSchema["CompositeTypes"]
+    | { schema: keyof Database },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
+    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never

@@ -1,6 +1,7 @@
 "use client";
 
 import { useTrackerParams } from "@/hooks/use-tracker-params";
+import { useUserContext } from "@/store/user/hook";
 import { formatAmount, secondsToHoursAndMinutes } from "@/utils/format";
 import { TZDate } from "@date-fns/tz";
 import { cn } from "@midday/ui/cn";
@@ -11,6 +12,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@midday/ui/tooltip";
+import NumberFlow from "@number-flow/react";
 import { useClickAway } from "@uidotdev/usehooks";
 import {
   addMonths,
@@ -24,12 +26,10 @@ import {
   startOfWeek,
   subMonths,
 } from "date-fns";
-import MotionNumber from "motion-number";
 import { useCallback, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { TrackerEvents } from "./tracker-events";
 import { TrackerMonthSelect } from "./tracker-month-select";
-import { TrackerSettings } from "./tracker-settings";
 
 type Props = {
   weekStartsOnMonday?: boolean;
@@ -178,16 +178,11 @@ function handleMonthChange(
 type CalendarHeaderProps = {
   meta: { totalDuration?: number };
   data: Record<string, TrackerEvent[]>;
-  timeFormat: number;
-  weekStartsOnMonday: boolean;
 };
 
-function CalendarHeader({
-  meta,
-  data,
-  timeFormat,
-  weekStartsOnMonday,
-}: CalendarHeaderProps) {
+function CalendarHeader({ meta, data }: CalendarHeaderProps) {
+  const { locale } = useUserContext((state) => state.data);
+
   const projectTotals = Object.entries(data).reduce(
     (acc, [_, events]) => {
       for (const event of events) {
@@ -244,12 +239,12 @@ function CalendarHeader({
     <div className="flex items-center justify-between mb-6">
       <div className="space-y-2 select-text">
         <h1 className="text-4xl font-mono">
-          <MotionNumber
+          <NumberFlow
             value={
               meta?.totalDuration ? Math.round(meta.totalDuration / 3600) : 0
             }
           />
-          <span className="relative top-[3px]">h</span>
+          <span className="relative">h</span>
         </h1>
 
         <div className="text-sm text-[#606060] flex items-center space-x-2">
@@ -260,6 +255,7 @@ function CalendarHeader({
                   amount: meta?.totalAmount,
                   minimumFractionDigits: 0,
                   maximumFractionDigits: 0,
+                  locale,
                 })} this month`
               : "Nothing billable yet"}
           </p>
@@ -295,6 +291,7 @@ function CalendarHeader({
                               amount: project.amount,
                               minimumFractionDigits: 0,
                               maximumFractionDigits: 0,
+                              locale,
                             })}
                           </span>
                         </div>
@@ -309,10 +306,6 @@ function CalendarHeader({
       </div>
       <div className="flex space-x-2">
         <TrackerMonthSelect dateFormat="MMMM" />
-        <TrackerSettings
-          timeFormat={timeFormat}
-          weekStartsOnMonday={weekStartsOnMonday}
-        />
       </div>
     </div>
   );
@@ -431,7 +424,7 @@ function CalendarDay({
           ? "bg-[#f0f0f0] dark:bg-[#202020]"
           : "bg-background",
         !isCurrentMonth &&
-          "bg-[repeating-linear-gradient(-60deg,#DBDBDB,#DBDBDB_1px,background_1px,background_5px)] dark:bg-[repeating-linear-gradient(-60deg,#2C2C2C,#2C2C2C_1px,background_1px,background_5px)]",
+          "bg-[repeating-linear-gradient(-60deg,#DBDBDB,#DBDBDB_1px,transparent_1px,transparent_5px)] dark:bg-[repeating-linear-gradient(-60deg,#2C2C2C,#2C2C2C_1px,transparent_1px,transparent_5px)]",
         selectedDate === formattedDate && "ring-1 ring-primary",
         isInRange(date) && "ring-1 ring-primary bg-opacity-50",
         isFirstSelectedDate(date) && "ring-1 ring-primary bg-opacity-50",

@@ -1,5 +1,6 @@
 import { baseUrl } from "@/app/sitemap";
 import { CustomMDX } from "@/components/mdx";
+import { PostAuthor } from "@/components/post-author";
 import { PostStatus } from "@/components/post-status";
 import { getBlogPosts } from "@/lib/blog";
 import type { Metadata } from "next";
@@ -14,9 +15,8 @@ export async function generateStaticParams() {
   }));
 }
 
-export async function generateMetadata({
-  params,
-}): Promise<Metadata | undefined> {
+export async function generateMetadata(props): Promise<Metadata | undefined> {
+  const params = await props.params;
   const post = getBlogPosts().find((post) => post.slug === params.slug);
   if (!post) {
     return;
@@ -53,11 +53,13 @@ export async function generateMetadata({
   };
 }
 
-export default async function Page({
-  params: { slug },
-}: {
-  params: { slug: string };
+export default async function Page(props: {
+  params: Promise<{ slug: string }>;
 }) {
+  const params = await props.params;
+
+  const { slug } = params;
+
   const post = getBlogPosts().find((post) => post.slug === slug);
 
   if (!post) {
@@ -99,6 +101,10 @@ export default async function Page({
             />
           )}
           <CustomMDX source={post.content} />
+        </div>
+
+        <div className="mt-10">
+          <PostAuthor author="pontus" />
         </div>
       </article>
     </div>

@@ -9,7 +9,7 @@ export const createPlaidLinkTokenAction = async (accessToken?: string) => {
   } = await getSession();
 
   const { data } = await engine.auth.plaid.link({
-    userId: session?.user.id,
+    userId: session?.user?.id,
     accessToken,
   });
 

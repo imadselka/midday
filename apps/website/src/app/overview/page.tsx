@@ -1,8 +1,11 @@
 import { Assistant } from "@/components/assistant";
+import { CtaButton } from "@/components/cta-button";
+import { DynamicImage } from "@/components/dynamic-image";
 import type { Metadata } from "next";
-import Image from "next/image";
-import Overview from "public/product-overview.jpg";
-import Spending from "public/product-spending.png";
+import OverviewLight from "public/product-overview-light.jpg";
+import OverviewDark from "public/product-overview.jpg";
+import SpendingLight from "public/product-spending-light.png";
+import SpendingDark from "public/product-spending.png";
 
 export const metadata: Metadata = {
   title: "Financial Overview",
@@ -24,13 +27,21 @@ export default function Page() {
 
         <div className="flex items-center flex-col text-center relative">
           <p className="text-lg mt-4 max-w-[600px]">
-            Get real-time insight into your business's financial state. Keep
-            track of your spending, income and overall financial health.
+            Track key financial metrics like revenue, profit and loss, burn
+            rate, and expenses. View a consolidated currency overview across all
+            your accounts, and generate shareable reports.
           </p>
+
+          <CtaButton>Get on top of your finances</CtaButton>
         </div>
       </div>
 
-      <Image src={Overview} quality={100} alt="Overview" />
+      <DynamicImage
+        darkSrc={OverviewDark}
+        lightSrc={OverviewLight}
+        alt="Overview"
+        className="mt-28"
+      />
 
       <div className="flex items-center flex-col text-center relative mt-28">
         <div className="max-w-[600px]">
@@ -38,27 +49,30 @@ export default function Page() {
             From revenue to spending
           </h4>
           <p className="text-[#878787] text-sm">
-            The financial overview is there for your business when you feel that
-            you don’t have enough insights about your company. See crucial
-            numbers on how your company is doing, what you spent the most on
-            last year or just keep track of your transactions.
+            Connect your business with over 20,000 banks across 33 countries,
+            including the US, Canada, the UK, and Europe. Gain seamless insights
+            into your income and expenses by integrating your existing bank
+            accounts. With a unified view of all your finances, you’ll have a
+            clearer picture of your financial health and the tools to make
+            informed decisions about your business.
           </p>
         </div>
 
-        <Image
-          src={Spending}
-          quality={100}
+        <DynamicImage
+          darkSrc={SpendingDark}
+          lightSrc={SpendingLight}
           alt="Spending"
           className="mt-10 max-w-[834px] w-full"
         />
 
         <div className="mt-32 max-w-[550px]">
-          <h4 className="font-medium text-xl md:text-2xl mb-4">
-            Use assistant to dive deeper
-          </h4>
+          <h4 className="font-medium text-xl md:text-2xl mb-4">Dive deeper</h4>
           <p className="text-[#878787] text-sm md:mb-10">
-            Use the assistant to ask questions about your business's financials,
-            all just one keystroke away.
+            Our assistant is here to help you navigate your financial data with
+            ease. Ask questions about your key financial metrics and get
+            instant, insightful answers. With access to real-time data across
+            your connected bank accounts, the assistant helps you make informed
+            decisions and stay on top of your business finances.
           </p>
         </div>
 

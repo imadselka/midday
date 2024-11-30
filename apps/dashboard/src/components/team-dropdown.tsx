@@ -2,7 +2,7 @@
 
 import { changeTeamAction } from "@/actions/change-team-action";
 import { CreateTeamModal } from "@/components/modals/create-team-modal";
-import { Avatar, AvatarFallback, AvatarImage } from "@midday/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImageNext } from "@midday/ui/avatar";
 import { Button } from "@midday/ui/button";
 import { Dialog } from "@midday/ui/dialog";
 import { Icons } from "@midday/ui/icons";
@@ -80,7 +80,7 @@ export function TeamDropdown({ selectedTeamId: initialId, teams }: Props) {
               </>
             ) : (
               <Avatar
-                className="w-[32px] h-[32px] rounded-sm border border-[#DCDAD2] dark:border-[#2C2C2C] cursor-pointer"
+                className="w-[32px] h-[32px] rounded-none border border-[#DCDAD2] dark:border-[#2C2C2C] cursor-pointer"
                 onClick={() => {
                   if (index === 0) {
                     toggleActive();
@@ -91,8 +91,14 @@ export function TeamDropdown({ selectedTeamId: initialId, teams }: Props) {
                   }
                 }}
               >
-                <AvatarImage src={team?.logo_url} />
-                <AvatarFallback className="rounded-sm w-[32px] h-[32px]">
+                <AvatarImageNext
+                  src={team?.logo_url}
+                  alt={team?.name ?? ""}
+                  width={20}
+                  height={20}
+                  quality={100}
+                />
+                <AvatarFallback className="rounded-none w-[32px] h-[32px]">
                   <span className="text-xs">
                     {team?.name?.charAt(0)?.toUpperCase()}
                     {team?.name?.charAt(1)?.toUpperCase()}

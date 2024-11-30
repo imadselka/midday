@@ -4,6 +4,7 @@ import { deleteProjectAction } from "@/actions/project/delete-project-action";
 import { updateProjectAction } from "@/actions/project/update-project-action";
 import { updateProjectSchema } from "@/actions/schema";
 import { TrackerProjectForm } from "@/components/forms/tracker-project-form";
+import type { Customer } from "@/components/invoice/customer-details";
 import { useTrackerParams } from "@/hooks/use-tracker-params";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createClient } from "@midday/supabase/client";
@@ -32,18 +33,20 @@ import { ScrollArea } from "@midday/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader } from "@midday/ui/sheet";
 import { useToast } from "@midday/ui/use-toast";
 import { useAction } from "next-safe-action/hooks";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 
 type Props = {
   userId: string;
   teamId: string;
+  customers: Customer[];
 };
 
-export function TrackerUpdateSheet({ teamId }: Props) {
+export function TrackerUpdateSheet({ teamId, customers }: Props) {
   const { toast } = useToast();
   const isDesktop = useMediaQuery("(min-width: 768px)");
+  const [isLoading, setIsLoading] = useState(false);
   const { setParams, update, projectId } = useTrackerParams();
   const supabase = createClient();
   const id = projectId ?? "";
@@ -61,11 +64,15 @@ export function TrackerUpdateSheet({ teamId }: Props) {
       billable: undefined,
       estimate: 0,
       currency: undefined,
+      customer_id: undefined,
+      tags: undefined,
     },
   });
 
   useEffect(() => {
     const fetchData = async () => {
+      setIsLoading(true);
+
       const { data } = await getTrackerProjectQuery(supabase, {
         teamId,
         projectId: id,
@@ -81,8 +88,17 @@ export function TrackerUpdateSheet({ teamId }: Props) {
           billable: data.billable ?? undefined,
           estimate: data.estimate ?? undefined,
           currency: data.currency ?? undefined,
+          customer_id: data.customer_id ?? undefined,
+          tags:
+            data.tags?.map((tag) => ({
+              id: tag.tag?.id ?? "",
+              label: tag.tag?.name ?? "",
+              value: tag.tag?.name ?? "",
+            })) ?? undefined,
         });
       }
+
+      setIsLoading(false);
     };
 
     if (id) {
@@ -117,6 +133,16 @@ export function TrackerUpdateSheet({ teamId }: Props) {
       });
     },
   });
+
+  useEffect(() => {
+    if (!isOpen) {
+      form.reset();
+    }
+  }, [isOpen]);
+
+  if (isLoading) {
+    return null;
+  }
 
   if (isDesktop) {
     return (
@@ -153,6 +179,7 @@ export function TrackerUpdateSheet({ teamId }: Props) {
                 form={form}
                 isSaving={updateAction.status === "executing"}
                 onSubmit={updateAction.execute}
+                customers={customers}
               />
             </ScrollArea>
           </SheetContent>
@@ -195,6 +222,7 @@ export function TrackerUpdateSheet({ teamId }: Props) {
           form={form}
           isSaving={updateAction.status === "executing"}
           onSubmit={updateAction.execute}
+          customers={customers}
         />
       </DrawerContent>
     </Drawer>

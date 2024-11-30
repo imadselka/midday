@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
 
       const analytics = await setupAnalytics({
         userId,
-        fullName: session?.user?.user_metadata?.full_name,
+        fullName: session.user.user_metadata?.full_name,
       });
 
       await analytics.track({

@@ -2,7 +2,7 @@
 const config = {
   poweredByHeader: false,
   reactStrictMode: true,
-  transpilePackages: ["@midday/ui", "@midday/tailwind"],
+  transpilePackages: ["@midday/ui", "@midday/tailwind", "next-mdx-remote"],
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -10,6 +10,8 @@ const config = {
     ignoreBuildErrors: true,
   },
   images: {
+    loader: "custom",
+    loaderFile: "./image-loader.ts",
     remotePatterns: [
       {
         protocol: "https",
@@ -26,6 +28,11 @@ const config = {
       },
       {
         source: "/public-beta",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/pitch",
         destination: "/",
         permanent: true,
       },

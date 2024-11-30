@@ -18,8 +18,8 @@ export async function signOutAction() {
   });
 
   const analytics = await setupAnalytics({
-    userId: session?.user.id,
-    fullName: session?.user.user_metadata?.full_name,
+    userId: session?.user?.id,
+    fullName: session?.user?.user_metadata?.full_name,
   });
 
   analytics.track({
@@ -27,7 +27,7 @@ export async function signOutAction() {
     channel: LogEvents.SignOut.channel,
   });
 
-  revalidateTag(`user_${session?.user.id}`);
+  revalidateTag(`user_${session?.user?.id}`);
 
   return redirect("/login");
 }

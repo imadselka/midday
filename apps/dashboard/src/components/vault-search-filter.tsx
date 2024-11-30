@@ -70,6 +70,7 @@ export function VaultSearchFilter({ members }: { members: any[] }) {
     },
     {
       enableOnFormTags: true,
+      enabled: Boolean(prompt),
     },
   );
 
@@ -208,7 +209,6 @@ export function VaultSearchFilter({ members }: { members: any[] }) {
                 <Calendar
                   mode="range"
                   initialFocus
-                  today={filters.start ? new Date(filters.start) : new Date()}
                   toDate={new Date()}
                   selected={{
                     from: filters.start ? new Date(filters.start) : undefined,

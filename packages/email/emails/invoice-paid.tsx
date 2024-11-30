@@ -13,21 +13,16 @@ import {
 import { Footer } from "../components/footer";
 import { Logo } from "../components/logo";
 
-interface WelcomeProps {
+interface Props {
   invoiceNumber: string;
   link: string;
 }
 
-const baseUrl =
-  process.env.VERCEL_ENV === "production"
-    ? "https://midday.ai/email"
-    : "http://localhost:3000/email";
-
 export const InvoicePaidEmail = ({
   invoiceNumber = "INV-0001",
-  link = "https://app.midday.ai/i/1234567890",
-}: WelcomeProps) => {
-  const text = `New comment on Invoice ${invoiceNumber}`;
+  link = "https://app.midday.ai/invoices?invoiceId=40b25275-258c-48e0-9678-57324cd770a6&type=details",
+}: Props) => {
+  const text = `Invoice ${invoiceNumber} has been paid`;
 
   return (
     <Html>
@@ -62,7 +57,7 @@ export const InvoicePaidEmail = ({
             className="border-transparent md:border-[#E8E7E1] my-[40px] mx-auto p-[20px] max-w-[600px]"
             style={{ borderStyle: "solid", borderWidth: 1 }}
           >
-            <Logo baseUrl={baseUrl} />
+            <Logo />
             <Heading className="text-[#121212] text-[21px] font-normal text-center p-0 my-[30px] mx-0">
               Invoice {invoiceNumber} <br /> has been Paid
             </Heading>
@@ -70,9 +65,12 @@ export const InvoicePaidEmail = ({
             <br />
 
             <Text className="text-[#121212]">
-              We’ve received confirmation that your invoice has been
-              successfully settled and it's automatically reconciled against
-              your transaction.
+              Great news! We found a matching transaction for this invoice in
+              your account and have marked it accordingly.
+              <br />
+              <br />
+              The invoice has been linked to the transaction in your records.
+              Please take a moment to check that everything looks right.
             </Text>
 
             <Section className="text-center mt-[50px] mb-[50px]">
@@ -80,13 +78,13 @@ export const InvoicePaidEmail = ({
                 className="bg-transparent text-primary text-[14px] text-[#121212] font-medium no-underline text-center px-6 py-3 border border-solid border-[#121212]"
                 href={link}
               >
-                View invoice
+                View invoice details
               </Button>
             </Section>
 
             <br />
 
-            <Footer baseUrl={baseUrl} />
+            <Footer />
           </Container>
         </Body>
       </Tailwind>

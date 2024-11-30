@@ -1,8 +1,12 @@
+import { CtaButton } from "@/components/cta-button";
+import { DynamicImage } from "@/components/dynamic-image";
 import type { Metadata } from "next";
-import Image from "next/image";
-import Clients from "public/product-clients.png";
-import Invoice from "public/product-invoice.jpg";
-import Pdf from "public/product-pdf.png";
+import InvoiceLight from "public/product-invoice-light.jpg";
+import InvoiceDark from "public/product-invoice.jpg";
+import PdfLight from "public/product-pdf-light.png";
+import PdfDark from "public/product-pdf.png";
+import StatusLight from "public/product-status-light.png";
+import StatusDark from "public/product-status.png";
 
 export const metadata: Metadata = {
   title: "Invoice",
@@ -15,10 +19,6 @@ export default function Page() {
     <div className="container mb-52">
       <div className="mb-40">
         <div className="mt-24 text-center">
-          <span className="text-[#F5F5F3] border border-border rounded-full font-medium font-mono px-3 text-xs py-1.5 mb-4 bg-[#1D1D1D]">
-            Coming soon
-          </span>
-
           <h1 className="mt-24 font-medium text-center text-[75px] md:text-[170px] mb-2 leading-none text-stroke">
             Seamless
           </h1>
@@ -33,10 +33,16 @@ export default function Page() {
             Create web-based invoices in seconds. Have an easy overview of all
             your invoices and see your outstanding balance.
           </p>
+
+          <CtaButton>Create invoices in seconds</CtaButton>
         </div>
       </div>
 
-      <Image src={Invoice} quality={100} alt="Invoice" />
+      <DynamicImage
+        darkSrc={InvoiceDark}
+        lightSrc={InvoiceLight}
+        alt="Invoice"
+      />
 
       <div className="flex items-center flex-col text-center relative mt-28">
         <div className="max-w-[600px]">
@@ -44,33 +50,38 @@ export default function Page() {
             Fast and easy
           </h4>
           <p className="text-[#878787] text-sm">
-            Create web-based invoices quickly, save client information, and make
-            it even faster the next time. Create tailored invoices with payment
-            terms, tax rules, and discounts. Simply paste in how you want to be
-            paid and send it.
+            Create and send invoices to your customers with ease. Add essential
+            details like VAT, sales tax, discounts and a personalized logo to
+            make your invoices professional and tailored to your needs. You can
+            send web invoices, export them as PDFs, and even track whether your
+            invoices have been viewed by the recipient.
           </p>
         </div>
 
-        <Image
-          src={Clients}
-          quality={100}
-          alt="Clients"
-          className="mt-10 max-w-[834px] w-full"
+        <DynamicImage
+          darkSrc={PdfDark}
+          lightSrc={PdfLight}
+          alt="Pdf"
+          className="mt-10 max-w-[536px] w-full"
         />
 
         <div className="mt-32 max-w-[600px]">
-          <h4 className="font-medium text-xl md:text-2xl mb-4">No more PDFs</h4>
+          <h4 className="font-medium text-xl md:text-2xl mb-4">
+            Track payments and stay organized
+          </h4>
           <p className="text-[#878787] text-sm mb-10">
-            Easily change your invoices on the fly instead of sending an
-            uneditable PDF. Share the link with your client and get paid.
+            Monitor your sent balance, stay on top of overdue payments, and send
+            reminders to ensure timely settlements. With these tools, managing
+            your invoicing process becomes streamlined and efficient, giving you
+            more time to focus on growing your business.
           </p>
         </div>
 
-        <Image
-          src={Pdf}
-          quality={100}
+        <DynamicImage
+          darkSrc={StatusDark}
+          lightSrc={StatusLight}
           alt="Pdf"
-          className="mt-10 max-w-[536px] w-full"
+          className="mt-10 max-w-[736px] w-full"
         />
       </div>
     </div>

@@ -24,7 +24,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@midday/ui/dropdown-menu";
+import { Icons } from "@midday/ui/icons";
+import { Input } from "@midday/ui/input";
+import { Label } from "@midday/ui/label";
 import { Switch } from "@midday/ui/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@midday/ui/tooltip";
 import { MoreHorizontal } from "lucide-react";
 import { Loader2 } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
@@ -41,6 +50,7 @@ type Props = {
   enabled: boolean;
   manual: boolean;
   type?: string;
+  hasError?: boolean;
 };
 
 export function BankAccount({
@@ -51,7 +61,9 @@ export function BankAccount({
   enabled,
   manual,
   type,
+  hasError,
 }: Props) {
+  const [value, setValue] = useState("");
   const [_, setParams] = useQueryStates({
     step: parseAsString,
     accountId: parseAsString,
@@ -82,16 +94,40 @@ export function BankAccount({
         <div className="flex items-center justify-between w-full">
           <div className="flex flex-col">
             <p className="font-medium leading-none mb-1 text-sm">{name}</p>
-            <span className="text-xs text-[#878787] font-normal">
-              {type && t(`account_type.${type}`)}
-            </span>
+            {!hasError && (
+              <span className="text-xs text-[#878787] font-normal">
+                {type && t(`account_type.${type}`)}
+              </span>
+            )}
+            {hasError && (
+              <TooltipProvider delayDuration={70}>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <div className="flex items-center space-x-1">
+                      <Icons.Error size={14} className="text-[#FFD02B]" />
+                      <span className="text-xs text-[#FFD02B] font-normal">
+                        Connection issue
+                      </span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    className="px-3 py-1.5 text-xs max-w-[400px]"
+                    sideOffset={20}
+                    side="left"
+                  >
+                    There is a problem with this account, please reconnect the
+                    bank connection.
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
           </div>
 
-          {balance && (
+          {balance && balance > 0 ? (
             <span className="text-[#878787] text-sm">
               <FormatAmount amount={balance} currency={currency} />
             </span>
-          )}
+          ) : null}
         </div>
       </div>
 
@@ -135,10 +171,22 @@ export function BankAccount({
                 transactions associated with this account will also be deleted.
               </AlertDialogDescription>
             </AlertDialogHeader>
+
+            <div className="flex flex-col gap-2 mt-2">
+              <Label htmlFor="confirm-delete">
+                Type <span className="font-medium">DELETE</span> to confirm.
+              </Label>
+              <Input
+                id="confirm-delete"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+              />
+            </div>
+
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
-                disabled={deleteAccount.status === "executing"}
+                disabled={value !== "DELETE"}
                 onClick={() =>
                   deleteAccount.execute({
                     id,

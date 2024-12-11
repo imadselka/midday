@@ -39,7 +39,6 @@ export function TrackerExportCSV({ name, teamId, projectId, userId }: Props) {
   const supabase = createClient();
 
   async function downloadCSV() {
-    console.log(date);
     const query = supabase
       .from("tracker_entries")
       .select(
@@ -145,17 +144,10 @@ export function TrackerExportCSV({ name, teamId, projectId, userId }: Props) {
               selected={date}
               onSelect={setDate}
               disabled={(date) => date > new Date()}
-              month={date?.from}
+              defaultMonth={date?.from}
             />
 
             <div className="p-4 space-y-4">
-              {/* <div className="flex items-center justify-between">
-                <Label>Include team</Label>
-                <Switch
-                  checked={includeTeam}
-                  onCheckedChange={setIncludeTeam}
-                />
-              </div> */}
               <Button onClick={downloadCSV} className="w-full" disabled={!date}>
                 Export
               </Button>

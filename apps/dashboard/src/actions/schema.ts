@@ -70,7 +70,6 @@ export type UpdateTeamFormValues = z.infer<typeof updateTeamSchema>;
 
 export const subscribeSchema = z.object({
   email: z.string().email(),
-  userGroup: z.string(),
 });
 
 export const deleteBankAccountSchema = z.object({
@@ -418,6 +417,8 @@ export const updateEntriesSchema = z.object({
 
 export const manualSyncTransactionsSchema = z.object({
   connectionId: z.string().uuid(),
+  provider: z.string(),
+  type: z.enum(["reconnect", "sync"]),
 });
 
 export const createGoCardLessLinkSchema = z.object({
@@ -604,4 +605,22 @@ export const createCustomerSchema = z.object({
   note: z.string().nullable().optional(),
   website: z.string().nullable().optional(),
   phone: z.string().nullable().optional(),
+  contact: z.string().nullable().optional(),
+  tags: z
+    .array(
+      z.object({
+        id: z.string().uuid(),
+        value: z.string(),
+      }),
+    )
+    .optional()
+    .nullable(),
 });
+
+export const inboxUploadSchema = z.array(
+  z.object({
+    mimetype: z.string(),
+    size: z.number(),
+    file_path: z.array(z.string()),
+  }),
+);

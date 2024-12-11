@@ -6,6 +6,7 @@ import { createClient } from "../client/server";
 import {
   type GetBurnRateQueryParams,
   type GetCategoriesParams,
+  type GetCustomersQueryParams,
   type GetExpensesQueryParams,
   type GetInvoiceSummaryParams,
   type GetInvoicesQueryParams,
@@ -16,6 +17,7 @@ import {
   type GetTrackerProjectsQueryParams,
   type GetTrackerRecordsByRangeParams,
   type GetTransactionsParams,
+  getBankAccountsBalancesQuery,
   getBankAccountsCurrenciesQuery,
   getBankConnectionsByTeamIdQuery,
   getBurnRateQuery,
@@ -499,7 +501,9 @@ export const getPaymentStatus = async () => {
   )();
 };
 
-export const getCustomers = async () => {
+export const getCustomers = async (
+  params?: Omit<GetCustomersQueryParams, "teamId">,
+) => {
   const supabase = createClient();
   const user = await getUser();
   const teamId = user?.data?.team_id;
@@ -510,14 +514,14 @@ export const getCustomers = async () => {
 
   return unstable_cache(
     async () => {
-      return getCustomersQuery(supabase, teamId);
+      return getCustomersQuery(supabase, { ...params, teamId });
     },
     ["customers", teamId],
     {
       tags: [`customers_${teamId}`],
       revalidate: 3600,
     },
-  )();
+  )(params);
 };
 
 export const getInvoices = async (
@@ -601,6 +605,27 @@ export const getTags = async () => {
     ["tags", teamId],
     {
       tags: [`tags_${teamId}`],
+      revalidate: 3600,
+    },
+  )();
+};
+
+export const getBankAccountsBalances = async () => {
+  const supabase = createClient();
+  const user = await getUser();
+  const teamId = user?.data?.team_id;
+
+  if (!teamId) {
+    return null;
+  }
+
+  return unstable_cache(
+    async () => {
+      return getBankAccountsBalancesQuery(supabase, teamId);
+    },
+    ["bank_accounts_balances", teamId],
+    {
+      tags: [`bank_accounts_balances_${teamId}`],
       revalidate: 3600,
     },
   )();
